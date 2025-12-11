@@ -1,4 +1,4 @@
-package main
+package ui
 
 import (
 	"os"
@@ -8,57 +8,69 @@ import (
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"golang.org/x/term"
 )
 
 var baseStyle = lipgloss.NewStyle().
 	BorderStyle(lipgloss.NormalBorder()).
 	BorderForeground(lipgloss.Color("240"))
 
-// Exported UIModel type handles table UI logic (Single Responsibility)
 type UIModel struct {
 	table table.Model
 }
 
-// Exported NewUIModel constructor
+func getTerminalSize() (width, height int) {
+	w, h, err := term.GetSize(int(os.Stdout.Fd()))
+	if err != nil {
+		width = 100
+		height = 20
+		if envW, ok := os.LookupEnv("COLUMNS"); ok {
+			if val, err := strconv.Atoi(envW); err == nil {
+				width = val
+			}
+		}
+		if envH, ok := os.LookupEnv("LINES"); ok {
+			if val, err := strconv.Atoi(envH); err == nil {
+				height = val - 5
+			}
+		}
+	} else {
+		width = w
+		height = h - 5
+	}
+	return
+}
+
 func NewUIModel(scanResult *nmap.Run) UIModel {
-	width := 100
-	height := 20
-	if w, ok := os.LookupEnv("COLUMNS"); ok {
-		if val, err := strconv.Atoi(w); err == nil {
-			width = val
-		}
+	width, height := getTerminalSize()
+	if height < 7 {
+		height = 7
 	}
-	if h, ok := os.LookupEnv("LINES"); ok {
-		if val, err := strconv.Atoi(h); err == nil {
-			height = val - 5 // leave some space for borders
-		}
-	}
+
 	columns := []table.Column{
-		{Title: "Id", Width: width / 12},
-		{Title: "IP", Width: width / 8},
-		{Title: "MAC", Width: width / 8},
-		{Title: "Hostname", Width: width / 6},
+		{Title: "Id", Width: width / 25},
+		{Title: "IP", Width: width / 10},
+		{Title: "MAC", Width: width / 5},
+		{Title: "Vendor", Width: width / 5},
+		{Title: "Hostname", Width: width / 10},
 		{Title: "OS", Width: width / 4},
-		{Title: "Vendor", Width: width / 4},
 	}
 	rows := []table.Row{}
 	for i, host := range scanResult.Hosts {
 		ip := "none"
 		mac := "none"
+		vendor := "none"
 		hostname := "none"
 		os := "none"
-		vendor := "none"
 		if len(host.Addresses) > 0 {
 			ip = host.Addresses[0].Addr
 		}
 		if len(host.Addresses) > 1 {
 			mac = host.Addresses[1].Addr
+			vendor = host.Addresses[1].Vendor
 		}
 		if len(host.Hostnames) > 0 {
 			hostname = host.Hostnames[0].Name
-		}
-		if len(host.Addresses) > 1 {
-			vendor = host.Addresses[1].Vendor
 		}
 		if len(host.OS.Matches) > 0 {
 			os = host.OS.Matches[0].Name
@@ -67,9 +79,9 @@ func NewUIModel(scanResult *nmap.Run) UIModel {
 			strconv.Itoa(i),
 			ip,
 			mac,
+			vendor,
 			hostname,
 			os,
-			vendor,
 		})
 	}
 	t := table.New(
