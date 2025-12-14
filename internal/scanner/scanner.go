@@ -24,8 +24,7 @@ func (s *NmapScanner) Scan(target string) (*nmap.Run, error) {
 		scanner, err := nmap.NewScanner(
 			context.Background(),
 			nmap.WithTargets(target),
-			nmap.WithFastMode(),
-			nmap.WithOSDetection(),
+			nmap.WithPingScan(),
 		)
 		if err != nil {
 			chErr <- err

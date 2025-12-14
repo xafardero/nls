@@ -53,7 +53,6 @@ func NewUIModel(scanResult *nmap.Run) UIModel {
 		{Title: "MAC", Width: width / 5},
 		{Title: "Vendor", Width: width / 5},
 		{Title: "Hostname", Width: width / 10},
-		{Title: "OS", Width: width / 4},
 	}
 	rows := []table.Row{}
 	for i, host := range scanResult.Hosts {
@@ -61,7 +60,6 @@ func NewUIModel(scanResult *nmap.Run) UIModel {
 		mac := "none"
 		vendor := "none"
 		hostname := "none"
-		os := "none"
 		if len(host.Addresses) > 0 {
 			ip = host.Addresses[0].Addr
 		}
@@ -72,16 +70,12 @@ func NewUIModel(scanResult *nmap.Run) UIModel {
 		if len(host.Hostnames) > 0 {
 			hostname = host.Hostnames[0].Name
 		}
-		if len(host.OS.Matches) > 0 {
-			os = host.OS.Matches[0].Name
-		}
 		rows = append(rows, table.Row{
 			strconv.Itoa(i),
 			ip,
 			mac,
 			vendor,
 			hostname,
-			os,
 		})
 	}
 	t := table.New(
