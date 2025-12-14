@@ -41,19 +41,26 @@ func getTerminalSize() (width, height int) {
 	return
 }
 
-func NewUIModel(scanResult *nmap.Run) UIModel {
-	width, height := getTerminalSize()
-	if height < 7 {
-		height = 7
+func buildColumns(width int) []table.Column {
+	// Calculate available width after fixed columns and padding
+	idWidth := 5
+	padding := 8 // for borders and spacing
+	remaining := width - idWidth - padding
+	// Assign proportional widths
+	ipWidth := remaining / 5
+	macWidth := remaining / 5
+	vendorWidth := remaining / 5
+	hostnameWidth := remaining / 5
+	return []table.Column{
+		{Title: "Id", Width: idWidth},
+		{Title: "IP", Width: ipWidth},
+		{Title: "MAC", Width: macWidth},
+		{Title: "Vendor", Width: vendorWidth},
+		{Title: "Hostname", Width: hostnameWidth},
 	}
+}
 
-	columns := []table.Column{
-		{Title: "Id", Width: width / 25},
-		{Title: "IP", Width: width / 10},
-		{Title: "MAC", Width: width / 5},
-		{Title: "Vendor", Width: width / 5},
-		{Title: "Hostname", Width: width / 10},
-	}
+func buildRows(scanResult *nmap.Run) []table.Row {
 	rows := []table.Row{}
 	for i, host := range scanResult.Hosts {
 		ip := "none"
@@ -78,6 +85,19 @@ func NewUIModel(scanResult *nmap.Run) UIModel {
 			hostname,
 		})
 	}
+	if len(rows) == 0 {
+		rows = append(rows, table.Row{"-", "No hosts found", "-", "-", "-"})
+	}
+	return rows
+}
+
+func NewUIModel(scanResult *nmap.Run) UIModel {
+	width, height := getTerminalSize()
+	if height < 7 {
+		height = 7
+	}
+	columns := buildColumns(width)
+	rows := buildRows(scanResult)
 	t := table.New(
 		table.WithColumns(columns),
 		table.WithRows(rows),
@@ -93,7 +113,8 @@ func NewUIModel(scanResult *nmap.Run) UIModel {
 	s.Selected = s.Selected.
 		Foreground(lipgloss.Color("229")).
 		Background(lipgloss.Color("57")).
-		Bold(false)
+		Bold(true).
+		Underline(true)
 	t.SetStyles(s)
 	return UIModel{t}
 }
@@ -124,5 +145,6 @@ func (m UIModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m UIModel) View() string {
-	return baseStyle.Render(m.table.View()) + "\n"
+	footer := "[q/ctrl+c: quit] [esc: focus/blur] [enter: select]"
+	return baseStyle.Render(m.table.View()) + "\n" + footer
 }
