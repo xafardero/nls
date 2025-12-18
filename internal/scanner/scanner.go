@@ -9,13 +9,7 @@ import (
 	"github.com/schollz/progressbar/v3"
 )
 
-type Scanner interface {
-	Scan(target string) (*nmap.Run, error)
-}
-
-type NmapScanner struct{}
-
-func (s *NmapScanner) Scan(target string) (*nmap.Run, error) {
+func Scan(target string) ([]HostInfo, error) {
 	bar := progressbar.NewOptions(-1, progressbar.OptionSetDescription("Scanning network..."), progressbar.OptionSpinnerType(14))
 	ch := make(chan *nmap.Run)
 	chErr := make(chan error)
@@ -41,12 +35,11 @@ func (s *NmapScanner) Scan(target string) (*nmap.Run, error) {
 		ch <- result
 	}()
 
-	// Animate spinner until scan is done
 	for {
 		select {
 		case result := <-ch:
 			bar.Finish()
-			return result, nil
+			return extractHostInfo(result), nil
 		case err := <-chErr:
 			bar.Finish()
 			return nil, err
@@ -55,4 +48,32 @@ func (s *NmapScanner) Scan(target string) (*nmap.Run, error) {
 			time.Sleep(100 * time.Millisecond)
 		}
 	}
+}
+
+func extractHostInfo(scanResult *nmap.Run) []HostInfo {
+	hosts := []HostInfo{}
+	for i, host := range scanResult.Hosts {
+		ip := "none"
+		mac := "none"
+		vendor := "none"
+		hostname := "none"
+		if len(host.Addresses) > 0 {
+			ip = host.Addresses[0].Addr
+		}
+		if len(host.Addresses) > 1 {
+			mac = host.Addresses[1].Addr
+			vendor = host.Addresses[1].Vendor
+		}
+		if len(host.Hostnames) > 0 {
+			hostname = host.Hostnames[0].Name
+		}
+		hosts = append(hosts, HostInfo{
+			ID:       i,
+			IP:       ip,
+			MAC:      mac,
+			Vendor:   vendor,
+			Hostname: hostname,
+		})
+	}
+	return hosts
 }
