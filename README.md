@@ -7,7 +7,14 @@ You can download the latest release for Linux (amd64/arm64) or macOS (amd64/arm6
 
 Example (Linux amd64):
 ```sh
-curl -L https://github.com/xafardero/nls/releases/latest/download/nls-linux-amd64 -o nls
+curl -L https://github.com/xafardero/nls/releases/download/v0.1.1/nls-linux-amd64 -o nls
+chmod +x nls
+sudo ./nls [CIDR]
+```
+
+Example (macOS arm64):
+```sh
+curl -L https://github.com/xafardero/nls/releases/download/v0.1.1/nls-macos-arm64 -o nls
 chmod +x nls
 sudo ./nls [CIDR]
 ```
@@ -27,3 +34,20 @@ sudo ./nls [CIDR]
 ```
 - `[CIDR]` is optional. If omitted, defaults to `192.168.1.0/24`.
 - Example: `sudo ./nls 10.0.0.0/24`
+
+## Features
+- Scans a given CIDR subnet for live hosts using nmap's ping scan
+- Responsive, interactive terminal UI with keyboard navigation
+- Displays IP, MAC, Vendor, and Hostname for each discovered host
+- Customizable scan range via command-line argument
+
+## Keyboard Shortcuts
+- `q` or `ctrl+c`: Quit
+- `esc`: Focus/blur table
+- `enter`: Select row
+
+## Description
+**nls** is a network scanner that quickly discovers live hosts in a subnet using nmap's ping scan. Results are shown in a modern, interactive terminal table UI, making it easy to browse and analyze your local network.
+
+---
+MIT License
