@@ -2,10 +2,19 @@
 
 A fast, terminal-based network scanner that lists hosts in a network.
 
+## Download
+You can download the latest release for Linux (amd64/arm64) or macOS (amd64/arm64) from the [Releases page](https://github.com/xafardero/nls/releases).
 
-## Build
+Example (Linux amd64):
 ```sh
-git clone <your-repo-url>
+curl -L https://github.com/xafardero/nls/releases/latest/download/nls-linux-amd64 -o nls
+chmod +x nls
+sudo ./nls [CIDR]
+```
+
+## Build from source
+```sh
+git clone https://github.com/xafardero/nls.git
 cd nls
 go build -o nls ./cmd/nls
 ```
