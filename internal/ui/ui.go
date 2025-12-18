@@ -4,11 +4,12 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/Ullaakut/nmap/v3"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"golang.org/x/term"
+
+	"nls/internal/scanner"
 )
 
 var baseStyle = lipgloss.NewStyle().
@@ -60,29 +61,17 @@ func buildColumns(width int) []table.Column {
 	}
 }
 
-func buildRows(scanResult *nmap.Run) []table.Row {
+
+
+func buildRows(hosts []scanner.HostInfo) []table.Row {
 	rows := []table.Row{}
-	for i, host := range scanResult.Hosts {
-		ip := "none"
-		mac := "none"
-		vendor := "none"
-		hostname := "none"
-		if len(host.Addresses) > 0 {
-			ip = host.Addresses[0].Addr
-		}
-		if len(host.Addresses) > 1 {
-			mac = host.Addresses[1].Addr
-			vendor = host.Addresses[1].Vendor
-		}
-		if len(host.Hostnames) > 0 {
-			hostname = host.Hostnames[0].Name
-		}
+	for _, h := range hosts {
 		rows = append(rows, table.Row{
-			strconv.Itoa(i),
-			ip,
-			mac,
-			vendor,
-			hostname,
+			strconv.Itoa(h.ID),
+			h.IP,
+			h.MAC,
+			h.Vendor,
+			h.Hostname,
 		})
 	}
 	if len(rows) == 0 {
@@ -91,13 +80,14 @@ func buildRows(scanResult *nmap.Run) []table.Row {
 	return rows
 }
 
-func NewUIModel(scanResult *nmap.Run) UIModel {
+func NewUIModel(hosts []scanner.HostInfo) UIModel {
 	width, height := getTerminalSize()
 	if height < 7 {
 		height = 7
 	}
+
 	columns := buildColumns(width)
-	rows := buildRows(scanResult)
+	rows := buildRows(hosts)
 	t := table.New(
 		table.WithColumns(columns),
 		table.WithRows(rows),
