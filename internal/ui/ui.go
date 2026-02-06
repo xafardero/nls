@@ -1,10 +1,13 @@
 package ui
 
 import (
+	"fmt"
 	"os"
+	"os/exec"
 	"strconv"
 
 	"github.com/charmbracelet/bubbles/table"
+	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"golang.org/x/term"
@@ -16,8 +19,17 @@ var baseStyle = lipgloss.NewStyle().
 	BorderStyle(lipgloss.NormalBorder()).
 	BorderForeground(lipgloss.Color("240"))
 
+var promptStyle = lipgloss.NewStyle().
+	Border(lipgloss.RoundedBorder()).
+	BorderForeground(lipgloss.Color("63")).
+	Padding(1, 2).
+	Width(50)
+
 type UIModel struct {
-	table table.Model
+	table          table.Model
+	showPrompt     bool
+	usernameInput  textinput.Model
+	selectedIP     string
 }
 
 func getTerminalSize() (width, height int) {
@@ -106,7 +118,18 @@ func NewUIModel(hosts []scanner.HostInfo) UIModel {
 		Bold(true).
 		Underline(true)
 	t.SetStyles(s)
-	return UIModel{t}
+
+	ti := textinput.New()
+	ti.Placeholder = "username"
+	ti.Focus()
+	ti.CharLimit = 32
+	ti.Width = 40
+
+	return UIModel{
+		table:         t,
+		showPrompt:    false,
+		usernameInput: ti,
+	}
 }
 
 func (m UIModel) Init() tea.Cmd { return nil }
@@ -115,6 +138,31 @@ func (m UIModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
+		if m.showPrompt {
+			switch msg.String() {
+			case "esc":
+				m.showPrompt = false
+				m.usernameInput.SetValue("")
+				m.table.Focus()
+				return m, nil
+			case "enter":
+				username := m.usernameInput.Value()
+				if username == "" {
+					return m, nil
+				}
+				m.showPrompt = false
+				m.usernameInput.SetValue("")
+				
+				sshCmd := exec.Command("ssh", fmt.Sprintf("%s@%s", username, m.selectedIP))
+				return m, tea.ExecProcess(sshCmd, func(err error) tea.Msg {
+					return nil
+				})
+			default:
+				m.usernameInput, cmd = m.usernameInput.Update(msg)
+				return m, cmd
+			}
+		}
+
 		switch msg.String() {
 		case "esc":
 			if m.table.Focused() {
@@ -124,10 +172,15 @@ func (m UIModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		case "q", "ctrl+c":
 			return m, tea.Quit
-		case "enter":
-			return m, tea.Batch(
-				tea.Printf("Let's go to %s!", m.table.SelectedRow()[1]),
-			)
+		case "s":
+			selectedRow := m.table.SelectedRow()
+			if len(selectedRow) > 1 && selectedRow[1] != "No hosts found" {
+				m.selectedIP = selectedRow[1]
+				m.showPrompt = true
+				m.table.Blur()
+				m.usernameInput.Focus()
+				return m, nil
+			}
 		}
 	}
 	m.table, cmd = m.table.Update(msg)
@@ -135,6 +188,28 @@ func (m UIModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m UIModel) View() string {
-	footer := "[q/ctrl+c: quit] [esc: focus/blur] [enter: select]"
-	return baseStyle.Render(m.table.View()) + "\n" + footer
+	baseView := baseStyle.Render(m.table.View())
+	
+	if m.showPrompt {
+		prompt := fmt.Sprintf("SSH to %s\n\n%s\n\n[enter: connect] [esc: cancel]",
+			m.selectedIP,
+			m.usernameInput.View(),
+		)
+		promptBox := promptStyle.Render(prompt)
+		
+		width, height := getTerminalSize()
+		overlay := lipgloss.Place(
+			width,
+			height,
+			lipgloss.Center,
+			lipgloss.Center,
+			promptBox,
+			lipgloss.WithWhitespaceChars(" "),
+			lipgloss.WithWhitespaceForeground(lipgloss.Color("0")),
+		)
+		return overlay
+	}
+	
+	footer := "[q/ctrl+c: quit] [esc: focus/blur] [s: ssh]"
+	return baseView + "\n" + footer
 }
