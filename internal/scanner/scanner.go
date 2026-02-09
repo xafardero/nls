@@ -39,12 +39,12 @@ func Scan(target string) ([]HostInfo, error) {
 		select {
 		case result := <-ch:
 			if err := bar.Finish(); err != nil {
-				return nil, err
+				log.Printf("progressbar finish error: %v", err)
 			}
 			return extractHostInfo(result), nil
 		case err := <-chErr:
 			if err2 := bar.Finish(); err2 != nil {
-				return nil, err2
+				log.Printf("progressbar finish error: %v", err2)
 			}
 			return nil, err
 		default:
