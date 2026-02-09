@@ -38,13 +38,19 @@ func Scan(target string) ([]HostInfo, error) {
 	for {
 		select {
 		case result := <-ch:
-			bar.Finish()
+			if err := bar.Finish(); err != nil {
+				return nil, err
+			}
 			return extractHostInfo(result), nil
 		case err := <-chErr:
-			bar.Finish()
+			if err2 := bar.Finish(); err2 != nil {
+				return nil, err2
+			}
 			return nil, err
 		default:
-			bar.Add(1)
+			if err := bar.Add(1); err != nil {
+				return nil, err
+			}
 			time.Sleep(100 * time.Millisecond)
 		}
 	}
