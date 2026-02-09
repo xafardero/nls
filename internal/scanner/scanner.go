@@ -11,6 +11,12 @@ import (
 
 func Scan(target string) ([]HostInfo, error) {
 	bar := progressbar.NewOptions(-1, progressbar.OptionSetDescription("Scanning network..."), progressbar.OptionSpinnerType(14))
+	defer func() {
+		if err := bar.Finish(); err != nil {
+			log.Printf("progressbar finish error: %v", err)
+		}
+	}()
+
 	ch := make(chan *nmap.Run)
 	chErr := make(chan error)
 
@@ -38,14 +44,8 @@ func Scan(target string) ([]HostInfo, error) {
 	for {
 		select {
 		case result := <-ch:
-			if err := bar.Finish(); err != nil {
-				log.Printf("progressbar finish error: %v", err)
-			}
 			return extractHostInfo(result), nil
 		case err := <-chErr:
-			if err2 := bar.Finish(); err2 != nil {
-				log.Printf("progressbar finish error: %v", err2)
-			}
 			return nil, err
 		default:
 			if err := bar.Add(1); err != nil {
