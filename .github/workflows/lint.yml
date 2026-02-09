@@ -1,4 +1,4 @@
-name: Linter the code
+name: Run golangci-lint
 
 on:
   pull_request:
@@ -7,7 +7,7 @@ on:
       - main
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   lint:
@@ -24,5 +24,5 @@ jobs:
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v9
         with:
-          version: latest
+          version: v1.60.3
           args: --fix
