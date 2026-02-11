@@ -19,7 +19,6 @@ import (
 	"nls/internal/scanner"
 )
 
-// UI layout constants
 const (
 	TableIDWidth          = 5
 	TablePaddingWidth     = 8
@@ -29,12 +28,8 @@ const (
 	DefaultTermHeightPad  = 5
 	SSHUsernameMaxLen     = 32
 	SSHUsernameInputWidth = 40
-	SSHPromptWidth        = 50
-	SSHPromptPadding      = 1
 )
 
-// ColumnWeights defines the proportional width allocation for table columns.
-// Values represent the percentage of available width each column should occupy.
 type ColumnWeights struct {
 	IP       float64
 	MAC      float64
@@ -42,21 +37,15 @@ type ColumnWeights struct {
 	Hostname float64
 }
 
-// DefaultColumnWeights returns the standard column width distribution.
-// IP gets 20%, while MAC, Vendor, and Hostname each get approximately 26.67%.
 func DefaultColumnWeights() ColumnWeights {
 	return ColumnWeights{
-		IP:       0.20, // 20%
-		MAC:      0.27, // 27%
-		Vendor:   0.26, // 26%
-		Hostname: 0.27, // 27%
+		IP:       0.20,
+		MAC:      0.27,
+		Vendor:   0.26,
+		Hostname: 0.27,
 	}
 }
 
-// UIModel represents the state of the terminal UI.
-// It manages the display table, SSH prompt dialog, and user input.
-// UIModel requires initialization via NewUIModel and cannot be used
-// with its zero value due to dependencies on Bubbletea components.
 type UIModel struct {
 	table         table.Model
 	showPrompt    bool
@@ -110,8 +99,6 @@ func buildColumns(width int, weights ColumnWeights) []table.Column {
 	}
 }
 
-// buildRows converts a slice of HostInfo into table rows.
-// Returns a single "No hosts found" row if the input is empty.
 func buildRows(hosts []scanner.HostInfo) []table.Row {
 	if len(hosts) == 0 {
 		return []table.Row{{"-", "No hosts found", "-", "-", "-"}}
@@ -130,20 +117,18 @@ func buildRows(hosts []scanner.HostInfo) []table.Row {
 	return rows
 }
 
-// getBaseStyle returns the lipgloss style for the main table border.
 func getBaseStyle() lipgloss.Style {
 	return lipgloss.NewStyle().
 		BorderStyle(lipgloss.NormalBorder()).
 		BorderForeground(lipgloss.Color("240"))
 }
 
-// getPromptStyle returns the lipgloss style for the SSH prompt dialog.
 func getPromptStyle() lipgloss.Style {
 	return lipgloss.NewStyle().
 		Border(lipgloss.RoundedBorder()).
 		BorderForeground(lipgloss.Color("63")).
-		Padding(SSHPromptPadding, 2).
-		Width(SSHPromptWidth)
+		Padding(1, 2).
+		Width(50)
 }
 
 // NewUIModel creates a new UI model. UIModel requires initialization
