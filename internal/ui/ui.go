@@ -15,21 +15,11 @@ import (
 	"nls/internal/scanner"
 )
 
-var baseStyle = lipgloss.NewStyle().
-	BorderStyle(lipgloss.NormalBorder()).
-	BorderForeground(lipgloss.Color("240"))
-
-var promptStyle = lipgloss.NewStyle().
-	Border(lipgloss.RoundedBorder()).
-	BorderForeground(lipgloss.Color("63")).
-	Padding(1, 2).
-	Width(50)
-
 type UIModel struct {
-	table          table.Model
-	showPrompt     bool
-	usernameInput  textinput.Model
-	selectedIP     string
+	table         table.Model
+	showPrompt    bool
+	usernameInput textinput.Model
+	selectedIP    string
 }
 
 func getTerminalSize() (width, height int) {
@@ -73,10 +63,12 @@ func buildColumns(width int) []table.Column {
 	}
 }
 
-
-
 func buildRows(hosts []scanner.HostInfo) []table.Row {
-	rows := []table.Row{}
+	if len(hosts) == 0 {
+		return []table.Row{{"-", "No hosts found", "-", "-", "-"}}
+	}
+
+	rows := make([]table.Row, 0, len(hosts))
 	for _, h := range hosts {
 		rows = append(rows, table.Row{
 			strconv.Itoa(h.ID),
@@ -86,12 +78,26 @@ func buildRows(hosts []scanner.HostInfo) []table.Row {
 			h.Hostname,
 		})
 	}
-	if len(rows) == 0 {
-		rows = append(rows, table.Row{"-", "No hosts found", "-", "-", "-"})
-	}
 	return rows
 }
 
+func getBaseStyle() lipgloss.Style {
+	return lipgloss.NewStyle().
+		BorderStyle(lipgloss.NormalBorder()).
+		BorderForeground(lipgloss.Color("240"))
+}
+
+func getPromptStyle() lipgloss.Style {
+	return lipgloss.NewStyle().
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(lipgloss.Color("63")).
+		Padding(1, 2).
+		Width(50)
+}
+
+// NewUIModel creates a new UI model. UIModel requires initialization
+// and cannot be used with its zero value due to dependencies on
+// the Bubbletea table component.
 func NewUIModel(hosts []scanner.HostInfo) UIModel {
 	width, height := getTerminalSize()
 	if height < 7 {
@@ -152,7 +158,7 @@ func (m UIModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 				m.showPrompt = false
 				m.usernameInput.SetValue("")
-				
+
 				sshCmd := exec.Command("ssh", fmt.Sprintf("%s@%s", username, m.selectedIP))
 				return m, tea.ExecProcess(sshCmd, func(err error) tea.Msg {
 					return nil
@@ -188,15 +194,15 @@ func (m UIModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m UIModel) View() string {
-	baseView := baseStyle.Render(m.table.View())
-	
+	baseView := getBaseStyle().Render(m.table.View())
+
 	if m.showPrompt {
 		prompt := fmt.Sprintf("SSH to %s\n\n%s\n\n[enter: connect] [esc: cancel]",
 			m.selectedIP,
 			m.usernameInput.View(),
 		)
-		promptBox := promptStyle.Render(prompt)
-		
+		promptBox := getPromptStyle().Render(prompt)
+
 		width, height := getTerminalSize()
 		overlay := lipgloss.Place(
 			width,
@@ -209,7 +215,7 @@ func (m UIModel) View() string {
 		)
 		return overlay
 	}
-	
+
 	footer := "[q/ctrl+c: quit] [esc: focus/blur] [s: ssh]"
 	return baseView + "\n" + footer
 }
