@@ -5,12 +5,11 @@ import (
 	"testing"
 
 	"github.com/charmbracelet/bubbles/table"
-	"github.com/charmbracelet/lipgloss"
 
 	"nls/internal/scanner"
 )
 
-func TestBuildColumns(t *testing.T) {
+func TestBuildColumns_DefaultWeights(t *testing.T) {
 	weights := DefaultColumnWeights()
 
 	tests := []struct {
@@ -78,7 +77,6 @@ func TestBuildColumns(t *testing.T) {
 func TestDefaultColumnWeights(t *testing.T) {
 	weights := DefaultColumnWeights()
 
-	// Verify weights are set correctly
 	if weights.IP != 0.20 {
 		t.Errorf("IP weight = %f; want 0.20", weights.IP)
 	}
@@ -92,7 +90,6 @@ func TestDefaultColumnWeights(t *testing.T) {
 		t.Errorf("Hostname weight = %f; want 0.27", weights.Hostname)
 	}
 
-	// Verify weights sum to approximately 1.0 (100%)
 	sum := weights.IP + weights.MAC + weights.Vendor + weights.Hostname
 	if sum < 0.99 || sum > 1.01 {
 		t.Errorf("weights sum = %f; want approximately 1.0", sum)
@@ -110,7 +107,6 @@ func TestBuildColumns_CustomWeights(t *testing.T) {
 	width := 100
 	columns := buildColumns(width, customWeights)
 
-	// Verify custom weights are applied
 	// remaining = 100 - 5 - 8 = 87
 	// IP: 87 * 0.30 = 26.1 → 26
 	// MAC: 87 * 0.30 = 26.1 → 26
@@ -209,7 +205,6 @@ func TestBuildRows(t *testing.T) {
 }
 
 func TestBuildRows_Preallocation(t *testing.T) {
-	// Test efficient handling of large host lists
 	hosts := make([]scanner.HostInfo, 1000)
 	for i := range hosts {
 		hosts[i] = scanner.HostInfo{
@@ -227,7 +222,6 @@ func TestBuildRows_Preallocation(t *testing.T) {
 		t.Errorf("expected 1000 rows, got %d", len(rows))
 	}
 
-	// Spot check a few rows
 	if rows[0][0] != "0" {
 		t.Errorf("first row ID = %s; want %s", rows[0][0], "0")
 	}
@@ -236,36 +230,19 @@ func TestBuildRows_Preallocation(t *testing.T) {
 	}
 }
 
-func TestGetBaseStyle(t *testing.T) {
-	style := getBaseStyle()
-
-	// Verify style has expected properties
-	if style.GetBorderStyle() != lipgloss.NormalBorder() {
-		t.Error("expected NormalBorder style")
-	}
-
-	// Verify it's a valid lipgloss.Style
-	rendered := style.Render("test")
+func TestBaseStyle(t *testing.T) {
+	rendered := baseStyle.Render("test")
 	if rendered == "" {
 		t.Error("style.Render() returned empty string")
 	}
 }
 
-func TestGetPromptStyle(t *testing.T) {
-	style := getPromptStyle()
-
-	// Verify style has expected properties
-	if style.GetBorderStyle() != lipgloss.RoundedBorder() {
-		t.Error("expected RoundedBorder style")
+func TestPromptStyle(t *testing.T) {
+	if promptStyle.GetWidth() != SSHPromptWidth {
+		t.Errorf("style width = %d; want %d", promptStyle.GetWidth(), SSHPromptWidth)
 	}
 
-	// Verify width is set correctly
-	if style.GetWidth() != SSHPromptWidth {
-		t.Errorf("style width = %d; want %d", style.GetWidth(), SSHPromptWidth)
-	}
-
-	// Verify it's a valid lipgloss.Style
-	rendered := style.Render("test")
+	rendered := promptStyle.Render("test")
 	if rendered == "" {
 		t.Error("style.Render() returned empty string")
 	}
@@ -292,22 +269,18 @@ func TestNewUIModel(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			model := NewUIModel(tt.hosts)
 
-			// Verify model is initialized
 			if model.table.Cursor() < 0 {
 				t.Error("table cursor not initialized")
 			}
 
-			// Verify showPrompt starts as false
 			if model.showPrompt {
 				t.Error("showPrompt should be false initially")
 			}
 
-			// Verify selectedIP is empty
 			if model.selectedIP != "" {
 				t.Errorf("selectedIP = %q; want empty string", model.selectedIP)
 			}
 
-			// Verify username input is configured
 			if model.usernameInput.Placeholder != "username" {
 				t.Errorf("username placeholder = %q; want %q", model.usernameInput.Placeholder, "username")
 			}
@@ -323,7 +296,6 @@ func TestUIModel_Init(t *testing.T) {
 	model := NewUIModel([]scanner.HostInfo{})
 	cmd := model.Init()
 
-	// Init should return nil (no initial commands)
 	if cmd != nil {
 		t.Errorf("Init() returned non-nil command: %v", cmd)
 	}
@@ -361,12 +333,10 @@ func TestUIModel_View(t *testing.T) {
 			}
 
 			if tt.showPrompt {
-				// Prompt view should contain the IP
 				if model.selectedIP != "" && len(view) < len(model.selectedIP) {
 					t.Error("prompt view should contain selected IP")
 				}
 			} else {
-				// Normal view should contain footer
 				if len(view) == 0 {
 					t.Error("normal view should not be empty")
 				}

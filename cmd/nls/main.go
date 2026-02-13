@@ -3,36 +3,34 @@ package main
 import (
 	"context"
 	"fmt"
-	"net"
 	"os"
 
-	tea "github.com/charmbracelet/bubbletea"
-
+	"nls/internal/app"
+	"nls/internal/progress"
 	"nls/internal/scanner"
-	"nls/internal/ui"
 )
 
 func run() error {
-	cidr := "192.168.1.0/24"
+	config := app.DefaultConfig()
+
 	if len(os.Args) > 1 {
-		cidr = os.Args[1]
+		config.CIDR = os.Args[1]
 	}
 
-	if _, _, err := net.ParseCIDR(cidr); err != nil {
-		return fmt.Errorf("invalid CIDR format %s: %w", cidr, err)
+	var progressReporter progress.Reporter
+	if config.ShowProgress {
+		progressReporter = progress.NewSpinner()
+	} else {
+		progressReporter = progress.NoOp{}
 	}
+	nmapScanner := scanner.NewNmapScanner(progressReporter)
 
-	hosts, err := scanner.Scan(context.Background(), cidr)
-	if err != nil {
-		return fmt.Errorf("scan network: %w", err)
-	}
+	application := app.New(config, nmapScanner)
 
-	model := ui.NewUIModel(hosts)
-	if _, err := tea.NewProgram(model).Run(); err != nil {
-		return fmt.Errorf("run ui: %w", err)
-	}
+	ctx, cancel := context.WithTimeout(context.Background(), config.Timeout)
+	defer cancel()
 
-	return nil
+	return application.Run(ctx)
 }
 
 func main() {
