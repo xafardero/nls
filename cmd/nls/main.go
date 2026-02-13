@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"os"
@@ -11,25 +12,32 @@ import (
 	"nls/internal/ui"
 )
 
-func main() {
+func run() error {
 	cidr := "192.168.1.0/24"
 	if len(os.Args) > 1 {
 		cidr = os.Args[1]
 	}
 
 	if _, _, err := net.ParseCIDR(cidr); err != nil {
-		fmt.Println("Invalid CIDR format:", cidr)
-		os.Exit(1)
+		return fmt.Errorf("invalid CIDR format %s: %w", cidr, err)
 	}
 
-	hosts, err := scanner.Scan(cidr)
+	hosts, err := scanner.Scan(context.Background(), cidr)
 	if err != nil {
-		fmt.Println("Error running scanner:", err)
-		os.Exit(1)
+		return fmt.Errorf("scan network: %w", err)
 	}
+
 	model := ui.NewUIModel(hosts)
 	if _, err := tea.NewProgram(model).Run(); err != nil {
-		fmt.Println("Error running ui:", err)
+		return fmt.Errorf("run ui: %w", err)
+	}
+
+	return nil
+}
+
+func main() {
+	if err := run(); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
 }

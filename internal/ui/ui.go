@@ -1,3 +1,6 @@
+// Package ui provides a terminal user interface for displaying network scan results.
+// It uses the Bubbletea framework to create an interactive table view with
+// keyboard navigation and SSH connection capabilities.
 package ui
 
 import (
@@ -5,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"strconv"
+	"strings"
 
 	"github.com/charmbracelet/bubbles/table"
 	"github.com/charmbracelet/bubbles/textinput"
@@ -15,28 +19,59 @@ import (
 	"nls/internal/scanner"
 )
 
-var baseStyle = lipgloss.NewStyle().
-	BorderStyle(lipgloss.NormalBorder()).
-	BorderForeground(lipgloss.Color("240"))
+// UI layout constants
+const (
+	TableIDWidth          = 5
+	TablePaddingWidth     = 8
+	MinTableHeight        = 7
+	DefaultTermWidth      = 100
+	DefaultTermHeight     = 20
+	DefaultTermHeightPad  = 5
+	SSHUsernameMaxLen     = 32
+	SSHUsernameInputWidth = 40
+	SSHPromptWidth        = 50
+	SSHPromptPadding      = 1
+)
 
-var promptStyle = lipgloss.NewStyle().
-	Border(lipgloss.RoundedBorder()).
-	BorderForeground(lipgloss.Color("63")).
-	Padding(1, 2).
-	Width(50)
-
-type UIModel struct {
-	table          table.Model
-	showPrompt     bool
-	usernameInput  textinput.Model
-	selectedIP     string
+// ColumnWeights defines the proportional width allocation for table columns.
+// Values represent the percentage of available width each column should occupy.
+type ColumnWeights struct {
+	IP       float64
+	MAC      float64
+	Vendor   float64
+	Hostname float64
 }
 
+// DefaultColumnWeights returns the standard column width distribution.
+// IP gets 20%, while MAC, Vendor, and Hostname each get approximately 26.67%.
+func DefaultColumnWeights() ColumnWeights {
+	return ColumnWeights{
+		IP:       0.20, // 20%
+		MAC:      0.27, // 27%
+		Vendor:   0.26, // 26%
+		Hostname: 0.27, // 27%
+	}
+}
+
+// UIModel represents the state of the terminal UI.
+// It manages the display table, SSH prompt dialog, and user input.
+// UIModel requires initialization via NewUIModel and cannot be used
+// with its zero value due to dependencies on Bubbletea components.
+type UIModel struct {
+	table         table.Model
+	showPrompt    bool
+	usernameInput textinput.Model
+	selectedIP    string
+}
+
+// getTerminalSize returns the current terminal width and height.
+// Falls back to environment variables or default values
+// if terminal size detection fails.
 func getTerminalSize() (width, height int) {
 	w, h, err := term.GetSize(int(os.Stdout.Fd()))
 	if err != nil {
-		width = 100
-		height = 20
+		width = DefaultTermWidth
+		height = DefaultTermHeight
 		if envW, ok := os.LookupEnv("COLUMNS"); ok {
 			if val, err := strconv.Atoi(envW); err == nil {
 				width = val
@@ -44,28 +79,30 @@ func getTerminalSize() (width, height int) {
 		}
 		if envH, ok := os.LookupEnv("LINES"); ok {
 			if val, err := strconv.Atoi(envH); err == nil {
-				height = val - 5
+				height = val - DefaultTermHeightPad
 			}
 		}
 	} else {
 		width = w
-		height = h - 5
+		height = h - DefaultTermHeightPad
 	}
 	return
 }
 
-func buildColumns(width int) []table.Column {
+// buildColumns creates table column definitions based on terminal width.
+// Columns are proportionally sized using the provided weights.
+func buildColumns(width int, weights ColumnWeights) []table.Column {
 	// Calculate available width after fixed columns and padding
-	idWidth := 5
-	padding := 8 // for borders and spacing
-	remaining := width - idWidth - padding
-	// Assign proportional widths
-	ipWidth := remaining / 5
-	macWidth := remaining / 5
-	vendorWidth := remaining / 5
-	hostnameWidth := remaining / 5
+	remaining := width - TableIDWidth - TablePaddingWidth
+
+	// Assign proportional widths based on weights
+	ipWidth := int(float64(remaining) * weights.IP)
+	macWidth := int(float64(remaining) * weights.MAC)
+	vendorWidth := int(float64(remaining) * weights.Vendor)
+	hostnameWidth := int(float64(remaining) * weights.Hostname)
+
 	return []table.Column{
-		{Title: "Id", Width: idWidth},
+		{Title: "Id", Width: TableIDWidth},
 		{Title: "IP", Width: ipWidth},
 		{Title: "MAC", Width: macWidth},
 		{Title: "Vendor", Width: vendorWidth},
@@ -73,10 +110,14 @@ func buildColumns(width int) []table.Column {
 	}
 }
 
-
-
+// buildRows converts a slice of HostInfo into table rows.
+// Returns a single "No hosts found" row if the input is empty.
 func buildRows(hosts []scanner.HostInfo) []table.Row {
-	rows := []table.Row{}
+	if len(hosts) == 0 {
+		return []table.Row{{"-", "No hosts found", "-", "-", "-"}}
+	}
+
+	rows := make([]table.Row, 0, len(hosts))
 	for _, h := range hosts {
 		rows = append(rows, table.Row{
 			strconv.Itoa(h.ID),
@@ -86,19 +127,36 @@ func buildRows(hosts []scanner.HostInfo) []table.Row {
 			h.Hostname,
 		})
 	}
-	if len(rows) == 0 {
-		rows = append(rows, table.Row{"-", "No hosts found", "-", "-", "-"})
-	}
 	return rows
 }
 
+// getBaseStyle returns the lipgloss style for the main table border.
+func getBaseStyle() lipgloss.Style {
+	return lipgloss.NewStyle().
+		BorderStyle(lipgloss.NormalBorder()).
+		BorderForeground(lipgloss.Color("240"))
+}
+
+// getPromptStyle returns the lipgloss style for the SSH prompt dialog.
+func getPromptStyle() lipgloss.Style {
+	return lipgloss.NewStyle().
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(lipgloss.Color("63")).
+		Padding(SSHPromptPadding, 2).
+		Width(SSHPromptWidth)
+}
+
+// NewUIModel creates a new UI model. UIModel requires initialization
+// and cannot be used with its zero value due to dependencies on
+// the Bubbletea table component.
 func NewUIModel(hosts []scanner.HostInfo) UIModel {
 	width, height := getTerminalSize()
-	if height < 7 {
-		height = 7
+	if height < MinTableHeight {
+		height = MinTableHeight
 	}
 
-	columns := buildColumns(width)
+	weights := DefaultColumnWeights()
+	columns := buildColumns(width, weights)
 	rows := buildRows(hosts)
 	t := table.New(
 		table.WithColumns(columns),
@@ -122,8 +180,8 @@ func NewUIModel(hosts []scanner.HostInfo) UIModel {
 	ti := textinput.New()
 	ti.Placeholder = "username"
 	ti.Focus()
-	ti.CharLimit = 32
-	ti.Width = 40
+	ti.CharLimit = SSHUsernameMaxLen
+	ti.Width = SSHUsernameInputWidth
 
 	return UIModel{
 		table:         t,
@@ -152,7 +210,7 @@ func (m UIModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 				m.showPrompt = false
 				m.usernameInput.SetValue("")
-				
+
 				sshCmd := exec.Command("ssh", fmt.Sprintf("%s@%s", username, m.selectedIP))
 				return m, tea.ExecProcess(sshCmd, func(err error) tea.Msg {
 					return nil
@@ -187,16 +245,18 @@ func (m UIModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
+// View renders the UI based on current state.
+// Shows either the normal table view or the SSH prompt overlay.
 func (m UIModel) View() string {
-	baseView := baseStyle.Render(m.table.View())
-	
+	baseView := getBaseStyle().Render(m.table.View())
+
 	if m.showPrompt {
 		prompt := fmt.Sprintf("SSH to %s\n\n%s\n\n[enter: connect] [esc: cancel]",
 			m.selectedIP,
 			m.usernameInput.View(),
 		)
-		promptBox := promptStyle.Render(prompt)
-		
+		promptBox := getPromptStyle().Render(prompt)
+
 		width, height := getTerminalSize()
 		overlay := lipgloss.Place(
 			width,
@@ -209,7 +269,13 @@ func (m UIModel) View() string {
 		)
 		return overlay
 	}
-	
+
 	footer := "[q/ctrl+c: quit] [esc: focus/blur] [s: ssh]"
-	return baseView + "\n" + footer
+
+	// Use strings.Builder for efficient string concatenation
+	var b strings.Builder
+	b.WriteString(baseView)
+	b.WriteString("\n")
+	b.WriteString(footer)
+	return b.String()
 }
