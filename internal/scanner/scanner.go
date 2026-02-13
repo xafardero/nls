@@ -10,6 +10,14 @@ import (
 	"github.com/schollz/progressbar/v3"
 )
 
+// Scan performs an nmap ping scan on the specified CIDR target and returns
+// a list of discovered hosts. The scan respects the provided context for
+// cancellation.
+//
+// The function displays a progress spinner during the scan and extracts
+// IP addresses, MAC addresses, vendor information, and hostnames from the results.
+//
+// Returns an error if the scanner cannot be created or if the scan fails.
 func Scan(ctx context.Context, target string) ([]HostInfo, error) {
 	bar := progressbar.NewOptions(
 		-1,
