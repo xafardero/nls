@@ -165,7 +165,6 @@ func TestExtractHostInfo(t *testing.T) {
 }
 
 func TestExtractHostInfo_IDSequential(t *testing.T) {
-	// Verify that IDs are assigned sequentially starting from 0
 	scanResult := &nmap.Run{
 		Hosts: []nmap.Host{
 			{Addresses: []nmap.Address{{Addr: "192.168.1.1"}}},
@@ -190,9 +189,6 @@ func TestExtractHostInfo_IDSequential(t *testing.T) {
 }
 
 func TestExtractHostInfo_SlicePreallocation(t *testing.T) {
-	// Test that the function handles large result sets efficiently
-	// This is a behavioral test - we can't directly test preallocation
-	// but we verify it handles 1000 hosts without issue
 	hosts := make([]nmap.Host, 1000)
 	for i := range hosts {
 		hosts[i] = nmap.Host{
@@ -209,7 +205,6 @@ func TestExtractHostInfo_SlicePreallocation(t *testing.T) {
 		t.Errorf("expected 1000 hosts, got %d", len(results))
 	}
 
-	// Verify all have sequential IDs
 	for i, result := range results {
 		if result.ID != i {
 			t.Errorf("host at index %d has ID %d", i, result.ID)
