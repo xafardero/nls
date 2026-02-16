@@ -1,11 +1,16 @@
 package ui
 
 import (
-"fmt"
-"os/exec"
+	"fmt"
+	"os/exec"
+	"time"
 
-tea "github.com/charmbracelet/bubbletea"
+	"github.com/atotto/clipboard"
+	tea "github.com/charmbracelet/bubbletea"
 )
+
+// clearStatusMsg is sent after a delay to clear the status message.
+type clearStatusMsg struct{}
 
 // Init initializes the UI model.
 // Returns nil as no initial commands are needed.
@@ -19,6 +24,9 @@ func (m UIModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
+	case clearStatusMsg:
+		m.statusMessage = ""
+		return m, nil
 	case tea.KeyMsg:
 		if m.showPrompt {
 			return m.handlePromptKeys(msg)
@@ -49,8 +57,8 @@ func (m UIModel) handlePromptKeys(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 
 		sshCmd := exec.Command("ssh", fmt.Sprintf("%s@%s", username, m.selectedIP))
 		return m, tea.ExecProcess(sshCmd, func(err error) tea.Msg {
-return nil
-})
+			return nil
+		})
 
 	default:
 		var cmd tea.Cmd
@@ -71,6 +79,19 @@ func (m UIModel) handleNormalKeys(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 
 	case "q", "ctrl+c":
 		return m, tea.Quit
+
+	case "y":
+		selectedRow := m.table.SelectedRow()
+		if len(selectedRow) > 1 && selectedRow[1] != "No hosts found" {
+			ip := selectedRow[1]
+			if err := clipboard.WriteAll(ip); err == nil {
+				m.statusMessage = "IP copied to clipboard!"
+				m.statusExpiry = time.Now().Add(2 * time.Second)
+				return m, tea.Tick(2*time.Second, func(time.Time) tea.Msg {
+					return clearStatusMsg{}
+				})
+			}
+		}
 
 	case "s":
 		selectedRow := m.table.SelectedRow()
