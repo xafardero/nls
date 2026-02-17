@@ -44,6 +44,7 @@ sudo nls [CIDR]
 - `m`: Copy MAC address to clipboard
 - `h`: Copy hostname to clipboard
 - `a`: Copy all fields to clipboard (tab-separated)
+- `r`: Rescan network (refreshes host list)
 
 **Search & Sort:**
 - `/`: Search/filter hosts (matches IP, MAC, Vendor, or Hostname)
@@ -63,6 +64,7 @@ sudo nls [CIDR]
 - Displays IP, MAC address, vendor, and hostname for each host
 - Live search/filter across all fields
 - Column sorting with visual indicators (↑/↓)
+- Rescan network without restarting the application
 - Copy any field to clipboard
 - Built-in help screen
 
