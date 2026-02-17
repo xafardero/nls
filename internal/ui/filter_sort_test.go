@@ -293,7 +293,7 @@ func TestUpdateModel_RebuildTable(t *testing.T) {
 		{ID: 1, IP: "192.168.1.5", MAC: "BB:BB:BB:BB:BB:BB", Vendor: "Vendor B", Hostname: "host2"},
 	}
 
-	model := NewUIModel(hosts)
+	model := NewUIModel(hosts, nil, "")
 	model.sortColumn = 1
 	model.sortAscending = true
 

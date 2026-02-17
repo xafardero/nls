@@ -97,12 +97,18 @@ type UIModel struct {
 	// Sort state
 	sortColumn    int // 0=none, 1=IP, 2=MAC, 3=Vendor, 4=Hostname
 	sortAscending bool
+
+	// Rescan state
+	scanner    scanner.Scanner
+	cidr       string
+	isScanning bool
 }
 
 // NewUIModel creates a new UI model. UIModel requires initialization
 // and cannot be used with its zero value due to dependencies on
 // the Bubbletea table component.
-func NewUIModel(hosts []scanner.HostInfo) UIModel {
+// The scanner and cidr parameters enable rescan functionality.
+func NewUIModel(hosts []scanner.HostInfo, s scanner.Scanner, cidr string) UIModel {
 	width, height := getTerminalSize()
 	if height < MinTableHeight {
 		height = MinTableHeight
@@ -142,6 +148,9 @@ func NewUIModel(hosts []scanner.HostInfo) UIModel {
 		mode:          modeNormal,
 		searchActive:  false,
 		sortColumn:    0,
+		scanner:       s,
+		cidr:          cidr,
+		isScanning:    false,
 		sortAscending: true,
 	}
 }

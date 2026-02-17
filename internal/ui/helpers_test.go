@@ -267,7 +267,7 @@ func TestNewUIModel(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			model := NewUIModel(tt.hosts)
+			model := NewUIModel(tt.hosts, nil, "")
 
 			if model.table.Cursor() < 0 {
 				t.Error("table cursor not initialized")
@@ -293,7 +293,7 @@ func TestNewUIModel(t *testing.T) {
 }
 
 func TestUIModel_Init(t *testing.T) {
-	model := NewUIModel([]scanner.HostInfo{})
+	model := NewUIModel([]scanner.HostInfo{}, nil, "")
 	cmd := model.Init()
 
 	if cmd != nil {
@@ -322,7 +322,7 @@ func TestUIModel_View(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			model := NewUIModel([]scanner.HostInfo{
 				{ID: 0, IP: "192.168.1.10", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test"},
-			})
+			}, nil, "")
 			model.mode = tt.mode
 			model.selectedIP = tt.selectedIP
 
