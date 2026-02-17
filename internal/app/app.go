@@ -42,7 +42,7 @@ func (a *App) Run(ctx context.Context) error {
 		return fmt.Errorf("scan network: %w", err)
 	}
 
-	model := ui.NewUIModel(hosts)
+	model := ui.NewUIModel(hosts, a.scanner, a.config.CIDR)
 	if _, err := tea.NewProgram(model).Run(); err != nil {
 		return fmt.Errorf("run ui: %w", err)
 	}
