@@ -84,8 +84,8 @@ func TestUpdate_SSHPrompt(t *testing.T) {
 	updatedModel, _ := model.Update(msg)
 	m := updatedModel.(UIModel)
 
-	if !m.showPrompt {
-		t.Error("expected showPrompt to be true after 's' key")
+	if m.mode != modeSSHPrompt {
+		t.Error("expected mode to be modeSSHPrompt after 's' key")
 	}
 	if m.selectedIP != "192.168.1.10" {
 		t.Errorf("selectedIP = %q; want %q", m.selectedIP, "192.168.1.10")
@@ -97,7 +97,7 @@ func TestUpdate_SSHPromptEscape(t *testing.T) {
 		{ID: 0, IP: "192.168.1.10", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
 	}
 	model := NewUIModel(hosts)
-	model.showPrompt = true
+	model.mode = modeSSHPrompt
 	model.selectedIP = "192.168.1.10"
 	model.usernameInput.SetValue("testuser")
 
@@ -106,8 +106,8 @@ func TestUpdate_SSHPromptEscape(t *testing.T) {
 	updatedModel, _ := model.Update(msg)
 	m := updatedModel.(UIModel)
 
-	if m.showPrompt {
-		t.Error("expected showPrompt to be false after escape")
+	if m.mode != modeNormal {
+		t.Error("expected mode to be modeNormal after escape")
 	}
 	if m.usernameInput.Value() != "" {
 		t.Errorf("usernameInput value = %q; want empty string", m.usernameInput.Value())
@@ -170,7 +170,7 @@ func TestHandleNormalKeys_SSHWithNoHostsFound(t *testing.T) {
 	m := updatedModel.(UIModel)
 
 	// Should not show SSH prompt for "No hosts found"
-	if m.showPrompt {
+	if m.mode != modeNormal {
 		t.Error("should not show SSH prompt for 'No hosts found' row")
 	}
 }
