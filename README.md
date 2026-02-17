@@ -9,7 +9,7 @@ Download the latest release for Linux (amd64/arm64) or macOS (arm64) from the [R
 
 ```sh
 # Replace {OS}-{ARCH} with your platform (e.g., linux-amd64, macos-arm64)
-curl -L https://github.com/xafardero/nls/releases/download/v0.1.2/nls-{OS}-{ARCH} -o nls
+curl -L https://github.com/xafardero/nls/releases/download/v0.1.3/nls-{OS}-{ARCH} -o nls
 chmod +x nls
 sudo mv nls /usr/local/bin/
 ```
