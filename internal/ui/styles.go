@@ -15,6 +15,12 @@ var (
 			BorderForeground(lipgloss.Color("63")).
 			Padding(SSHPromptPadding, 2).
 			Width(SSHPromptWidth)
+
+	helpStyle = lipgloss.NewStyle().
+			Border(lipgloss.RoundedBorder()).
+			BorderForeground(lipgloss.Color("99")).
+			Padding(HelpBoxPadding, 3).
+			Width(HelpBoxWidth)
 )
 
 func tableStyles() table.Styles {

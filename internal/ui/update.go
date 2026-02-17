@@ -28,21 +28,84 @@ func (m UIModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.statusMessage = ""
 		return m, nil
 	case tea.KeyMsg:
-		if m.showPrompt {
-			return m.handlePromptKeys(msg)
+		// Route to appropriate handler based on view mode
+		switch m.mode {
+		case modeHelp:
+			return m.handleHelpKeys(msg)
+		case modeSearch:
+			return m.handleSearchKeys(msg)
+		case modeSSHPrompt:
+			return m.handleSSHPromptKeys(msg)
+		default: // modeNormal
+			return m.handleNormalKeys(msg)
 		}
-		return m.handleNormalKeys(msg)
 	}
 
 	m.table, cmd = m.table.Update(msg)
 	return m, cmd
 }
 
-// handlePromptKeys handles keyboard input when SSH prompt is shown.
-func (m UIModel) handlePromptKeys(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+// handleHelpKeys handles keyboard input when help screen is shown.
+func (m UIModel) handleHelpKeys(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+	switch msg.String() {
+	case "esc", "q", "?":
+		m.mode = modeNormal
+		m.table.Focus()
+		return m, nil
+	}
+	return m, nil
+}
+
+// handleSearchKeys handles keyboard input when search mode is active.
+func (m UIModel) handleSearchKeys(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	switch msg.String() {
 	case "esc":
-		m.showPrompt = false
+		// Cancel search, return to normal mode
+		m.mode = modeNormal
+		m.searchInput.SetValue("")
+		m.searchInput.Blur()
+		m.table.Focus()
+		return m, nil
+
+	case "enter":
+		// Apply search filter
+		query := m.searchInput.Value()
+		m.searchQuery = query
+		m.searchActive = query != ""
+
+		// Filter hosts
+		if m.searchActive {
+			m.filteredHosts = filterHosts(m.allHosts, query)
+		} else {
+			m.filteredHosts = m.allHosts
+		}
+
+		// Rebuild table with filtered and sorted data
+		m = m.rebuildTable()
+
+		m.mode = modeNormal
+		m.searchInput.Blur()
+		m.table.Focus()
+
+		// Show status message
+		m.statusMessage = fmt.Sprintf("Found %d host(s)", len(m.filteredHosts))
+		m.statusExpiry = time.Now().Add(2 * time.Second)
+		return m, tea.Tick(2*time.Second, func(time.Time) tea.Msg {
+			return clearStatusMsg{}
+		})
+
+	default:
+		var cmd tea.Cmd
+		m.searchInput, cmd = m.searchInput.Update(msg)
+		return m, cmd
+	}
+}
+
+// handleSSHPromptKeys handles keyboard input when SSH prompt is shown.
+func (m UIModel) handleSSHPromptKeys(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+	switch msg.String() {
+	case "esc":
+		m.mode = modeNormal
 		m.usernameInput.SetValue("")
 		m.table.Focus()
 		return m, nil
@@ -52,7 +115,6 @@ func (m UIModel) handlePromptKeys(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		if username == "" {
 			return m, nil
 		}
-		m.showPrompt = false
 		m.usernameInput.SetValue("")
 
 		sshCmd := exec.Command("ssh", fmt.Sprintf("%s@%s", username, m.selectedIP))
@@ -70,6 +132,19 @@ func (m UIModel) handlePromptKeys(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 // handleNormalKeys handles keyboard input in normal table view mode.
 func (m UIModel) handleNormalKeys(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	switch msg.String() {
+	case "?":
+		// Show help screen
+		m.mode = modeHelp
+		m.table.Blur()
+		return m, nil
+
+	case "/":
+		// Activate search mode
+		m.mode = modeSearch
+		m.searchInput.Focus()
+		m.table.Blur()
+		return m, nil
+
 	case "esc":
 		if m.table.Focused() {
 			m.table.Blur()
@@ -80,7 +155,22 @@ func (m UIModel) handleNormalKeys(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "q", "ctrl+c":
 		return m, tea.Quit
 
+	case "1", "2", "3", "4":
+		// Sort by column
+		col := int(msg.String()[0] - '0')
+		if m.sortColumn == col {
+			// Toggle sort direction
+			m.sortAscending = !m.sortAscending
+		} else {
+			// New column, default to ascending
+			m.sortColumn = col
+			m.sortAscending = true
+		}
+		m = m.rebuildTable()
+		return m, nil
+
 	case "y":
+		// Copy IP to clipboard
 		selectedRow := m.table.SelectedRow()
 		if len(selectedRow) > 1 && selectedRow[1] != "No hosts found" {
 			ip := selectedRow[1]
@@ -93,11 +183,56 @@ func (m UIModel) handleNormalKeys(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			}
 		}
 
+	case "m":
+		// Copy MAC to clipboard
+		selectedRow := m.table.SelectedRow()
+		if len(selectedRow) > 2 && selectedRow[1] != "No hosts found" {
+			mac := selectedRow[2]
+			if err := clipboard.WriteAll(mac); err == nil {
+				m.statusMessage = "MAC address copied to clipboard!"
+				m.statusExpiry = time.Now().Add(2 * time.Second)
+				return m, tea.Tick(2*time.Second, func(time.Time) tea.Msg {
+					return clearStatusMsg{}
+				})
+			}
+		}
+
+	case "h":
+		// Copy hostname to clipboard
+		selectedRow := m.table.SelectedRow()
+		if len(selectedRow) > 4 && selectedRow[1] != "No hosts found" {
+			hostname := selectedRow[4]
+			if err := clipboard.WriteAll(hostname); err == nil {
+				m.statusMessage = "Hostname copied to clipboard!"
+				m.statusExpiry = time.Now().Add(2 * time.Second)
+				return m, tea.Tick(2*time.Second, func(time.Time) tea.Msg {
+					return clearStatusMsg{}
+				})
+			}
+		}
+
+	case "a":
+		// Copy all fields to clipboard
+		selectedRow := m.table.SelectedRow()
+		if len(selectedRow) > 4 && selectedRow[1] != "No hosts found" {
+			// Format: IP\tMAC\tVendor\tHostname
+			allFields := fmt.Sprintf("%s\t%s\t%s\t%s",
+				selectedRow[1], selectedRow[2], selectedRow[3], selectedRow[4])
+			if err := clipboard.WriteAll(allFields); err == nil {
+				m.statusMessage = "All fields copied to clipboard!"
+				m.statusExpiry = time.Now().Add(2 * time.Second)
+				return m, tea.Tick(2*time.Second, func(time.Time) tea.Msg {
+					return clearStatusMsg{}
+				})
+			}
+		}
+
 	case "s":
+		// SSH to selected host
 		selectedRow := m.table.SelectedRow()
 		if len(selectedRow) > 1 && selectedRow[1] != "No hosts found" {
 			m.selectedIP = selectedRow[1]
-			m.showPrompt = true
+			m.mode = modeSSHPrompt
 			m.table.Blur()
 			m.usernameInput.Focus()
 			return m, nil
@@ -107,4 +242,27 @@ func (m UIModel) handleNormalKeys(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	m.table, cmd = m.table.Update(msg)
 	return m, cmd
+}
+
+// rebuildTable rebuilds the table with current filter and sort settings.
+func (m UIModel) rebuildTable() UIModel {
+	// Apply sort to filtered hosts
+	hostsToDisplay := m.filteredHosts
+	if m.sortColumn > 0 {
+		hostsToDisplay = sortHosts(hostsToDisplay, m.sortColumn, m.sortAscending)
+	}
+
+	// Rebuild columns with sort indicator
+	width, _ := getTerminalSize()
+	weights := DefaultColumnWeights()
+	columns := buildColumns(width, weights, m.sortColumn, m.sortAscending)
+
+	// Rebuild rows
+	rows := buildRows(hostsToDisplay)
+
+	// Update table
+	m.table.SetColumns(columns)
+	m.table.SetRows(rows)
+
+	return m
 }

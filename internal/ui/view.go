@@ -9,19 +9,59 @@ import (
 )
 
 // View renders the UI based on current state.
-// Shows either the normal table view or the SSH prompt overlay.
+// Shows different views based on the current mode.
 func (m UIModel) View() string {
-	baseView := baseStyle.Render(m.table.View())
-
-	if m.showPrompt {
-		return m.renderPromptView(baseView)
+	switch m.mode {
+	case modeHelp:
+		return m.renderHelpView()
+	case modeSearch:
+		return m.renderSearchView()
+	case modeSSHPrompt:
+		return m.renderSSHPromptView()
+	default: // modeNormal
+		return m.renderNormalView()
 	}
-
-	return m.renderNormalView(baseView)
 }
 
-// renderPromptView renders the SSH prompt overlay.
-func (m UIModel) renderPromptView(baseView string) string {
+// renderHelpView renders the help screen.
+func (m UIModel) renderHelpView() string {
+	helpBox := helpStyle.Render(helpText)
+
+	width, height := getTerminalSize()
+	overlay := lipgloss.Place(
+		width,
+		height,
+		lipgloss.Center,
+		lipgloss.Center,
+		helpBox,
+		lipgloss.WithWhitespaceChars(" "),
+		lipgloss.WithWhitespaceForeground(lipgloss.Color("0")),
+	)
+	return overlay
+}
+
+// renderSearchView renders the search input overlay.
+func (m UIModel) renderSearchView() string {
+	prompt := fmt.Sprintf("Search/Filter Hosts\n\n%s\n\n[enter: apply filter] [esc: cancel]",
+		m.searchInput.View(),
+	)
+	searchBox := promptStyle.Render(prompt)
+
+	width, height := getTerminalSize()
+	overlay := lipgloss.Place(
+		width,
+		height,
+		lipgloss.Center,
+		lipgloss.Center,
+		searchBox,
+		lipgloss.WithWhitespaceChars(" "),
+		lipgloss.WithWhitespaceForeground(lipgloss.Color("0")),
+	)
+	return overlay
+}
+
+// renderSSHPromptView renders the SSH prompt overlay.
+func (m UIModel) renderSSHPromptView() string {
 	prompt := fmt.Sprintf("SSH to %s\n\n%s\n\n[enter: connect] [esc: cancel]",
 		m.selectedIP,
 		m.usernameInput.View(),
@@ -42,8 +82,16 @@ func (m UIModel) renderPromptView(baseView string) string {
 }
 
 // renderNormalView renders the standard table view with footer.
-func (m UIModel) renderNormalView(baseView string) string {
-	footer := "[q/ctrl+c: quit] [esc: focus/blur] [s: ssh] [y: copy IP]"
+func (m UIModel) renderNormalView() string {
+	baseView := baseStyle.Render(m.table.View())
+
+	// Build footer with all shortcuts
+	footer := "[?: help] [/: search] [1-4: sort] [y/m/h/a: copy] [s: ssh] [q: quit]"
+
+	// Show active filter indicator
+	if m.searchActive {
+		footer = fmt.Sprintf("[Filter: %s] ", m.searchQuery) + footer
+	}
 
 	// Show status message if active
 	if m.statusMessage != "" && time.Now().Before(m.statusExpiry) {

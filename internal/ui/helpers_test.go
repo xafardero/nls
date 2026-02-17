@@ -65,7 +65,7 @@ func TestBuildColumns_DefaultWeights(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := buildColumns(tt.width, weights)
+			got := buildColumns(tt.width, weights, 0, false)
 
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("buildColumns(%d, weights) mismatch:\ngot:  %+v\nwant: %+v", tt.width, got, tt.want)
@@ -105,7 +105,7 @@ func TestBuildColumns_CustomWeights(t *testing.T) {
 	}
 
 	width := 100
-	columns := buildColumns(width, customWeights)
+	columns := buildColumns(width, customWeights, 0, false)
 
 	// remaining = 100 - 5 - 8 = 87
 	// IP: 87 * 0.30 = 26.1 → 26
@@ -273,8 +273,8 @@ func TestNewUIModel(t *testing.T) {
 				t.Error("table cursor not initialized")
 			}
 
-			if model.showPrompt {
-				t.Error("showPrompt should be false initially")
+			if model.mode != modeNormal {
+				t.Error("mode should be modeNormal initially")
 			}
 
 			if model.selectedIP != "" {
@@ -304,16 +304,16 @@ func TestUIModel_Init(t *testing.T) {
 func TestUIModel_View(t *testing.T) {
 	tests := []struct {
 		name       string
-		showPrompt bool
+		mode       viewMode
 		selectedIP string
 	}{
 		{
-			name:       "normal view",
-			showPrompt: false,
+			name: "normal view",
+			mode: modeNormal,
 		},
 		{
-			name:       "prompt view",
-			showPrompt: true,
+			name:       "ssh prompt view",
+			mode:       modeSSHPrompt,
 			selectedIP: "192.168.1.10",
 		},
 	}
@@ -323,7 +323,7 @@ func TestUIModel_View(t *testing.T) {
 			model := NewUIModel([]scanner.HostInfo{
 				{ID: 0, IP: "192.168.1.10", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test"},
 			})
-			model.showPrompt = tt.showPrompt
+			model.mode = tt.mode
 			model.selectedIP = tt.selectedIP
 
 			view := model.View()
@@ -332,7 +332,7 @@ func TestUIModel_View(t *testing.T) {
 				t.Error("View() returned empty string")
 			}
 
-			if tt.showPrompt {
+			if tt.mode == modeSSHPrompt {
 				if model.selectedIP != "" && len(view) < len(model.selectedIP) {
 					t.Error("prompt view should contain selected IP")
 				}

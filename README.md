@@ -33,16 +33,38 @@ sudo nls [CIDR]
 - Example: `sudo nls 10.0.0.0/24`
 
 **Keyboard Shortcuts:**
-- `q` or `ctrl+c`: Quit
+
+**Navigation:**
 - `↑`/`↓` or `j`/`k`: Navigate table
 - `esc`: Toggle table focus
+
+**Actions:**
 - `s`: SSH to selected host
 - `y`: Copy IP to clipboard
+- `m`: Copy MAC address to clipboard
+- `h`: Copy hostname to clipboard
+- `a`: Copy all fields to clipboard (tab-separated)
+
+**Search & Sort:**
+- `/`: Search/filter hosts (matches IP, MAC, Vendor, or Hostname)
+- `1`: Sort by IP address
+- `2`: Sort by MAC address
+- `3`: Sort by Vendor
+- `4`: Sort by Hostname
+- Press the same number again to toggle ascending/descending
+
+**Help & Exit:**
+- `?`: Show help screen with all shortcuts
+- `q` or `ctrl+c`: Quit
 
 ## Features
 - Fast network scanning using nmap's ping scan
 - Interactive terminal UI with keyboard navigation
 - Displays IP, MAC address, vendor, and hostname for each host
+- Live search/filter across all fields
+- Column sorting with visual indicators (↑/↓)
+- Copy any field to clipboard
+- Built-in help screen
 
 ---
 MIT License
