@@ -24,19 +24,79 @@ const (
 	SSHUsernameInputWidth = 40
 	SSHPromptWidth        = 50
 	SSHPromptPadding      = 1
+	HelpBoxWidth          = 70
+	HelpBoxPadding        = 2
+	SearchInputWidth      = 50
 )
 
+// viewMode represents the current view/screen mode
+type viewMode int
+
+const (
+	modeNormal viewMode = iota
+	modeHelp
+	modeSearch
+	modeSSHPrompt
+)
+
+// Help screen content
+const helpText = `Keyboard Shortcuts:
+
+  Navigation:
+    ↑/k          Move up
+    ↓/j          Move down
+    esc          Toggle table focus
+
+  Actions:
+    s            SSH to selected host
+    y            Copy IP to clipboard
+    m            Copy MAC to clipboard
+    h            Copy hostname to clipboard
+    a            Copy all fields to clipboard
+    r            Rescan network
+
+  Search & Sort:
+    /            Search/filter hosts
+    1            Sort by IP
+    2            Sort by MAC
+    3            Sort by Vendor
+    4            Sort by Hostname
+
+  Other:
+    ?            Show this help
+    q/ctrl+c     Quit
+
+Press esc or q to close this help screen.`
+
 // UIModel represents the state of the terminal UI.
-// It manages the display table, SSH prompt dialog, and user input.
-// UIModel requires initialization via NewUIModel and cannot be used
-// with its zero value due to dependencies on Bubbletea components.
+// It manages the display table, multiple view modes, search/filter, sorting,
+// and user input. UIModel requires initialization via NewUIModel and cannot
+// be used with its zero value due to dependencies on Bubbletea components.
 type UIModel struct {
+	// Display components
 	table         table.Model
-	showPrompt    bool
 	usernameInput textinput.Model
-	selectedIP    string
+	searchInput   textinput.Model
+
+	// Data storage
+	allHosts      []scanner.HostInfo // Original host data
+	filteredHosts []scanner.HostInfo // After applying search filter
+
+	// View state
+	mode          viewMode
 	statusMessage string
 	statusExpiry  time.Time
+
+	// SSH state
+	selectedIP string
+
+	// Search/Filter state
+	searchActive bool
+	searchQuery  string
+
+	// Sort state
+	sortColumn    int // 0=none, 1=IP, 2=MAC, 3=Vendor, 4=Hostname
+	sortAscending bool
 }
 
 // NewUIModel creates a new UI model. UIModel requires initialization
@@ -49,7 +109,7 @@ func NewUIModel(hosts []scanner.HostInfo) UIModel {
 	}
 
 	weights := DefaultColumnWeights()
-	columns := buildColumns(width, weights)
+	columns := buildColumns(width, weights, 0, false) // No initial sort
 	rows := buildRows(hosts)
 	t := table.New(
 		table.WithColumns(columns),
@@ -60,15 +120,28 @@ func NewUIModel(hosts []scanner.HostInfo) UIModel {
 
 	t.SetStyles(tableStyles())
 
+	// SSH username input
 	ti := textinput.New()
 	ti.Placeholder = "username"
 	ti.Focus()
 	ti.CharLimit = SSHUsernameMaxLen
 	ti.Width = SSHUsernameInputWidth
 
+	// Search input
+	si := textinput.New()
+	si.Placeholder = "Search (IP, MAC, Vendor, Hostname)..."
+	si.CharLimit = 50
+	si.Width = SearchInputWidth
+
 	return UIModel{
 		table:         t,
-		showPrompt:    false,
+		allHosts:      hosts,
+		filteredHosts: hosts, // Initially, no filter applied
 		usernameInput: ti,
+		searchInput:   si,
+		mode:          modeNormal,
+		searchActive:  false,
+		sortColumn:    0,
+		sortAscending: true,
 	}
 }
