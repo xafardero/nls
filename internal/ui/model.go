@@ -4,6 +4,8 @@
 package ui
 
 import (
+	"time"
+
 	"github.com/charmbracelet/bubbles/table"
 	"github.com/charmbracelet/bubbles/textinput"
 
@@ -33,6 +35,8 @@ type UIModel struct {
 	showPrompt    bool
 	usernameInput textinput.Model
 	selectedIP    string
+	statusMessage string
+	statusExpiry  time.Time
 }
 
 // NewUIModel creates a new UI model. UIModel requires initialization

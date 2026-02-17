@@ -3,6 +3,7 @@ package ui
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/charmbracelet/lipgloss"
 )
@@ -42,7 +43,12 @@ func (m UIModel) renderPromptView(baseView string) string {
 
 // renderNormalView renders the standard table view with footer.
 func (m UIModel) renderNormalView(baseView string) string {
-	footer := "[q/ctrl+c: quit] [esc: focus/blur] [s: ssh]"
+	footer := "[q/ctrl+c: quit] [esc: focus/blur] [s: ssh] [y: copy IP]"
+
+	// Show status message if active
+	if m.statusMessage != "" && time.Now().Before(m.statusExpiry) {
+		footer = m.statusMessage + "  " + footer
+	}
 
 	var b strings.Builder
 	b.WriteString(baseView)

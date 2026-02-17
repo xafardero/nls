@@ -36,7 +36,8 @@ sudo nls [CIDR]
 - `q` or `ctrl+c`: Quit
 - `↑`/`↓` or `j`/`k`: Navigate table
 - `esc`: Toggle table focus
-- `enter`: Select row
+- `s`: SSH to selected host
+- `y`: Copy IP to clipboard
 
 ## Features
 - Fast network scanning using nmap's ping scan

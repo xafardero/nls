@@ -1,13 +1,13 @@
 package ui
 
 import (
-"os"
-"strconv"
+	"os"
+	"strconv"
 
-"github.com/charmbracelet/bubbles/table"
-"golang.org/x/term"
+	"github.com/charmbracelet/bubbles/table"
+	"golang.org/x/term"
 
-"nls/internal/scanner"
+	"nls/internal/scanner"
 )
 
 // ColumnWeights defines the proportional width allocation for table columns.
@@ -84,12 +84,12 @@ func buildRows(hosts []scanner.HostInfo) []table.Row {
 	rows := make([]table.Row, 0, len(hosts))
 	for _, h := range hosts {
 		rows = append(rows, table.Row{
-strconv.Itoa(h.ID),
-h.IP,
-h.MAC,
-h.Vendor,
-h.Hostname,
-})
+			strconv.Itoa(h.ID),
+			h.IP,
+			h.MAC,
+			h.Vendor,
+			h.Hostname,
+		})
 	}
 	return rows
 }
