@@ -1,16 +1,53 @@
 package ui
 
 import (
+	"context"
 	"fmt"
 	"os/exec"
 	"time"
 
 	"github.com/atotto/clipboard"
 	tea "github.com/charmbracelet/bubbletea"
+
+	"nls/internal/progress"
+	"nls/internal/scanner"
 )
 
 // clearStatusMsg is sent after a delay to clear the status message.
 type clearStatusMsg struct{}
+
+// rescanCompleteMsg is sent when a rescan finishes successfully.
+type rescanCompleteMsg struct {
+	hosts []scanner.HostInfo
+}
+
+// rescanErrorMsg is sent when a rescan fails.
+type rescanErrorMsg struct {
+	err error
+}
+
+// doRescan performs a network rescan in a goroutine and returns the result as a message.
+// Creates a new scanner with NoOp progress reporter to avoid terminal output conflicts with the TUI.
+// If a non-NmapScanner is passed (e.g., mock for testing), it uses that scanner directly.
+func doRescan(s scanner.Scanner, cidr string) tea.Cmd {
+	return func() tea.Msg {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+		defer cancel()
+
+		// For NmapScanner, create a silent version to avoid progress output interfering with TUI
+		// For other scanners (e.g., mocks in tests), use the provided scanner
+		scannerToUse := s
+		if _, ok := s.(*scanner.NmapScanner); ok {
+			scannerToUse = scanner.NewNmapScanner(progress.NoOp{})
+		}
+
+		hosts, err := scannerToUse.Scan(ctx, cidr)
+		if err != nil {
+			return rescanErrorMsg{err: err}
+		}
+		return rescanCompleteMsg{hosts: hosts}
+	}
+}
 
 // Init initializes the UI model.
 // Returns nil as no initial commands are needed.
@@ -27,7 +64,44 @@ func (m UIModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case clearStatusMsg:
 		m.statusMessage = ""
 		return m, nil
+
+	case rescanCompleteMsg:
+		// Update hosts with new scan results
+		m.isScanning = false
+		m.allHosts = msg.hosts
+
+		// Reapply current filter if active
+		if m.searchActive {
+			m.filteredHosts = filterHosts(m.allHosts, m.searchQuery)
+		} else {
+			m.filteredHosts = m.allHosts
+		}
+
+		// Rebuild the table
+		m = m.rebuildTable()
+
+		// Show success message
+		m.statusMessage = fmt.Sprintf("Rescan complete: %d host(s) found", len(m.allHosts))
+		m.statusExpiry = time.Now().Add(3 * time.Second)
+		return m, tea.Tick(3*time.Second, func(time.Time) tea.Msg {
+			return clearStatusMsg{}
+		})
+
+	case rescanErrorMsg:
+		// Handle scan error
+		m.isScanning = false
+		m.statusMessage = fmt.Sprintf("Rescan failed: %v", msg.err)
+		m.statusExpiry = time.Now().Add(5 * time.Second)
+		return m, tea.Tick(5*time.Second, func(time.Time) tea.Msg {
+			return clearStatusMsg{}
+		})
+
 	case tea.KeyMsg:
+		// Ignore keyboard input while scanning
+		if m.isScanning {
+			return m, nil
+		}
+
 		// Route to appropriate handler based on view mode
 		switch m.mode {
 		case modeHelp:
@@ -168,6 +242,15 @@ func (m UIModel) handleNormalKeys(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		}
 		m = m.rebuildTable()
 		return m, nil
+
+	case "r":
+		// Trigger network rescan
+		if m.isScanning {
+			// Already scanning, ignore
+			return m, nil
+		}
+		m.isScanning = true
+		return m, doRescan(m.scanner, m.cidr)
 
 	case "y":
 		// Copy IP to clipboard
