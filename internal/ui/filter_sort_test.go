@@ -251,28 +251,28 @@ func TestBuildColumns_WithSortIndicator(t *testing.T) {
 			sortCol:   1,
 			ascending: true,
 			wantTitle: "IP ↑",
-			colIndex:  1,
+			colIndex:  0,
 		},
 		{
 			name:      "sort by IP descending",
 			sortCol:   1,
 			ascending: false,
 			wantTitle: "IP ↓",
-			colIndex:  1,
+			colIndex:  0,
 		},
 		{
 			name:      "sort by MAC ascending",
 			sortCol:   2,
 			ascending: true,
 			wantTitle: "MAC ↑",
-			colIndex:  2,
+			colIndex:  1,
 		},
 		{
 			name:      "no sort indicator on other columns",
 			sortCol:   1,
 			ascending: true,
 			wantTitle: "Vendor", // Should not have indicator
-			colIndex:  3,
+			colIndex:  2,
 		},
 	}
 
@@ -307,7 +307,7 @@ func TestUpdateModel_RebuildTable(t *testing.T) {
 	}
 
 	// After sort by IP ascending, first row should be 192.168.1.5
-	if rows[0][1] != "192.168.1.5" {
-		t.Errorf("first row IP = %q; want %q after sort", rows[0][1], "192.168.1.5")
+	if rows[0][0] != "192.168.1.5" {
+		t.Errorf("first row IP = %q; want %q after sort", rows[0][0], "192.168.1.5")
 	}
 }

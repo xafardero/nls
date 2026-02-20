@@ -27,10 +27,9 @@ func (m UIModel) View() string {
 func (m UIModel) renderHelpView() string {
 	helpBox := helpStyle.Render(helpText)
 
-	width, height := getTerminalSize()
 	overlay := lipgloss.Place(
-		width,
-		height,
+		m.width,
+		m.height,
 		lipgloss.Center,
 		lipgloss.Center,
 		helpBox,
@@ -47,10 +46,9 @@ func (m UIModel) renderSearchView() string {
 	)
 	searchBox := promptStyle.Render(prompt)
 
-	width, height := getTerminalSize()
 	overlay := lipgloss.Place(
-		width,
-		height,
+		m.width,
+		m.height,
 		lipgloss.Center,
 		lipgloss.Center,
 		searchBox,
@@ -68,10 +66,9 @@ func (m UIModel) renderSSHPromptView() string {
 	)
 	promptBox := promptStyle.Render(prompt)
 
-	width, height := getTerminalSize()
 	overlay := lipgloss.Place(
-		width,
-		height,
+		m.width,
+		m.height,
 		lipgloss.Center,
 		lipgloss.Center,
 		promptBox,

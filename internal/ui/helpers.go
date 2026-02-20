@@ -61,7 +61,7 @@ func getTerminalSize() (width, height int) {
 // Columns are proportionally sized using the provided weights.
 // If sortCol > 0, adds a sort indicator (↑/↓) to the sorted column's title.
 func buildColumns(width int, weights ColumnWeights, sortCol int, ascending bool) []table.Column {
-	remaining := width - TableIDWidth - TablePaddingWidth
+	remaining := width - TablePaddingWidth
 
 	ipWidth := int(float64(remaining) * weights.IP)
 	macWidth := int(float64(remaining) * weights.MAC)
@@ -80,7 +80,6 @@ func buildColumns(width int, weights ColumnWeights, sortCol int, ascending bool)
 	}
 
 	return []table.Column{
-		{Title: "Id", Width: TableIDWidth},
 		{Title: addSortIndicator("IP", 1), Width: ipWidth},
 		{Title: addSortIndicator("MAC", 2), Width: macWidth},
 		{Title: addSortIndicator("Vendor", 3), Width: vendorWidth},
@@ -92,13 +91,12 @@ func buildColumns(width int, weights ColumnWeights, sortCol int, ascending bool)
 // Returns a single "No hosts found" row if the input is empty.
 func buildRows(hosts []scanner.HostInfo) []table.Row {
 	if len(hosts) == 0 {
-		return []table.Row{{"-", "No hosts found", "-", "-", "-"}}
+		return []table.Row{{"No hosts found", "-", "-", "-"}}
 	}
 
 	rows := make([]table.Row, 0, len(hosts))
 	for _, h := range hosts {
 		rows = append(rows, table.Row{
-			strconv.Itoa(h.ID),
 			h.IP,
 			h.MAC,
 			h.Vendor,

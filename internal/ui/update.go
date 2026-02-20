@@ -50,9 +50,9 @@ func doRescan(s scanner.Scanner, cidr string) tea.Cmd {
 }
 
 // Init initializes the UI model.
-// Returns nil as no initial commands are needed.
+// Requests initial window size to ensure proper layout.
 func (m UIModel) Init() tea.Cmd {
-	return nil
+	return tea.WindowSize()
 }
 
 // Update handles keyboard input and updates the model state.
@@ -95,6 +95,16 @@ func (m UIModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, tea.Tick(5*time.Second, func(time.Time) tea.Msg {
 			return clearStatusMsg{}
 		})
+
+	case tea.WindowSizeMsg:
+		m.width = msg.Width
+		m.height = msg.Height - DefaultTermHeightPad
+		if m.height < MinTableHeight {
+			m.height = MinTableHeight
+		}
+		m = m.rebuildTable()
+		m.table.SetHeight(m.height)
+		return m, nil
 
 	case tea.KeyMsg:
 		// Ignore keyboard input while scanning
@@ -255,8 +265,8 @@ func (m UIModel) handleNormalKeys(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "y":
 		// Copy IP to clipboard
 		selectedRow := m.table.SelectedRow()
-		if len(selectedRow) > 1 && selectedRow[1] != "No hosts found" {
-			ip := selectedRow[1]
+		if len(selectedRow) > 0 && selectedRow[0] != "No hosts found" {
+			ip := selectedRow[0]
 			if err := clipboard.WriteAll(ip); err == nil {
 				m.statusMessage = "IP copied to clipboard!"
 				m.statusExpiry = time.Now().Add(2 * time.Second)
@@ -269,8 +279,8 @@ func (m UIModel) handleNormalKeys(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "m":
 		// Copy MAC to clipboard
 		selectedRow := m.table.SelectedRow()
-		if len(selectedRow) > 2 && selectedRow[1] != "No hosts found" {
-			mac := selectedRow[2]
+		if len(selectedRow) > 1 && selectedRow[0] != "No hosts found" {
+			mac := selectedRow[1]
 			if err := clipboard.WriteAll(mac); err == nil {
 				m.statusMessage = "MAC address copied to clipboard!"
 				m.statusExpiry = time.Now().Add(2 * time.Second)
@@ -283,8 +293,8 @@ func (m UIModel) handleNormalKeys(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "h":
 		// Copy hostname to clipboard
 		selectedRow := m.table.SelectedRow()
-		if len(selectedRow) > 4 && selectedRow[1] != "No hosts found" {
-			hostname := selectedRow[4]
+		if len(selectedRow) > 3 && selectedRow[0] != "No hosts found" {
+			hostname := selectedRow[3]
 			if err := clipboard.WriteAll(hostname); err == nil {
 				m.statusMessage = "Hostname copied to clipboard!"
 				m.statusExpiry = time.Now().Add(2 * time.Second)
@@ -297,10 +307,10 @@ func (m UIModel) handleNormalKeys(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "a":
 		// Copy all fields to clipboard
 		selectedRow := m.table.SelectedRow()
-		if len(selectedRow) > 4 && selectedRow[1] != "No hosts found" {
+		if len(selectedRow) > 3 && selectedRow[0] != "No hosts found" {
 			// Format: IP\tMAC\tVendor\tHostname
 			allFields := fmt.Sprintf("%s\t%s\t%s\t%s",
-				selectedRow[1], selectedRow[2], selectedRow[3], selectedRow[4])
+				selectedRow[0], selectedRow[1], selectedRow[2], selectedRow[3])
 			if err := clipboard.WriteAll(allFields); err == nil {
 				m.statusMessage = "All fields copied to clipboard!"
 				m.statusExpiry = time.Now().Add(2 * time.Second)
@@ -313,8 +323,8 @@ func (m UIModel) handleNormalKeys(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "s":
 		// SSH to selected host
 		selectedRow := m.table.SelectedRow()
-		if len(selectedRow) > 1 && selectedRow[1] != "No hosts found" {
-			m.selectedIP = selectedRow[1]
+		if len(selectedRow) > 0 && selectedRow[0] != "No hosts found" {
+			m.selectedIP = selectedRow[0]
 			m.mode = modeSSHPrompt
 			m.table.Blur()
 			m.usernameInput.Focus()
@@ -328,6 +338,7 @@ func (m UIModel) handleNormalKeys(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 }
 
 // rebuildTable rebuilds the table with current filter and sort settings.
+// Uses stored terminal dimensions for responsive column sizing.
 func (m UIModel) rebuildTable() UIModel {
 	// Apply sort to filtered hosts
 	hostsToDisplay := m.filteredHosts
@@ -335,10 +346,9 @@ func (m UIModel) rebuildTable() UIModel {
 		hostsToDisplay = sortHosts(hostsToDisplay, m.sortColumn, m.sortAscending)
 	}
 
-	// Rebuild columns with sort indicator
-	width, _ := getTerminalSize()
+	// Rebuild columns with stored width
 	weights := DefaultColumnWeights()
-	columns := buildColumns(width, weights, m.sortColumn, m.sortAscending)
+	columns := buildColumns(m.width, weights, m.sortColumn, m.sortAscending)
 
 	// Rebuild rows
 	rows := buildRows(hostsToDisplay)
