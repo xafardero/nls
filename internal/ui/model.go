@@ -14,7 +14,6 @@ import (
 
 // UI layout constants
 const (
-	TableIDWidth          = 5
 	TablePaddingWidth     = 8
 	MinTableHeight        = 7
 	DefaultTermWidth      = 100
@@ -98,6 +97,10 @@ type UIModel struct {
 	sortColumn    int // 0=none, 1=IP, 2=MAC, 3=Vendor, 4=Hostname
 	sortAscending bool
 
+	// Terminal dimensions
+	width  int
+	height int
+
 	// Rescan state
 	scanner    scanner.Scanner
 	cidr       string
@@ -110,8 +113,9 @@ type UIModel struct {
 // The scanner and cidr parameters enable rescan functionality.
 func NewUIModel(hosts []scanner.HostInfo, s scanner.Scanner, cidr string) UIModel {
 	width, height := getTerminalSize()
-	if height < MinTableHeight {
-		height = MinTableHeight
+	tableHeight := height
+	if tableHeight < MinTableHeight {
+		tableHeight = MinTableHeight
 	}
 
 	weights := DefaultColumnWeights()
@@ -121,7 +125,7 @@ func NewUIModel(hosts []scanner.HostInfo, s scanner.Scanner, cidr string) UIMode
 		table.WithColumns(columns),
 		table.WithRows(rows),
 		table.WithFocused(true),
-		table.WithHeight(height),
+		table.WithHeight(tableHeight),
 	)
 
 	t.SetStyles(tableStyles())
@@ -148,6 +152,8 @@ func NewUIModel(hosts []scanner.HostInfo, s scanner.Scanner, cidr string) UIMode
 		mode:          modeNormal,
 		searchActive:  false,
 		sortColumn:    0,
+		width:         width,
+		height:        height,
 		scanner:       s,
 		cidr:          cidr,
 		isScanning:    false,

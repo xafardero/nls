@@ -361,3 +361,58 @@ func TestUpdate_RescanWithActiveFilter(t *testing.T) {
 		t.Errorf("filteredHosts[0].Vendor = %q; want 'Apple'", m.filteredHosts[0].Vendor)
 	}
 }
+
+func TestUpdate_WindowResize(t *testing.T) {
+	hosts := []scanner.HostInfo{
+		{ID: 0, IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
+	}
+	model := NewUIModel(hosts, nil, "")
+
+	tests := []struct {
+		name           string
+		width          int
+		height         int
+		expectedWidth  int
+		expectedHeight int
+	}{
+		{
+			name:           "standard resize",
+			width:          120,
+			height:         40,
+			expectedWidth:  120,
+			expectedHeight: 40 - DefaultTermHeightPad,
+		},
+		{
+			name:           "narrow window",
+			width:          60,
+			height:         20,
+			expectedWidth:  60,
+			expectedHeight: 20 - DefaultTermHeightPad,
+		},
+		{
+			name:           "very small height clamps to minimum",
+			width:          80,
+			height:         8,
+			expectedWidth:  80,
+			expectedHeight: MinTableHeight,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			msg := tea.WindowSizeMsg{Width: tt.width, Height: tt.height}
+			updatedModel, cmd := model.Update(msg)
+			m := updatedModel.(UIModel)
+
+			if m.width != tt.expectedWidth {
+				t.Errorf("width = %d; want %d", m.width, tt.expectedWidth)
+			}
+			if m.height != tt.expectedHeight {
+				t.Errorf("height = %d; want %d", m.height, tt.expectedHeight)
+			}
+			if cmd != nil {
+				t.Error("expected nil command from WindowSizeMsg")
+			}
+		})
+	}
+}

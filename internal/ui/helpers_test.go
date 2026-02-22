@@ -21,44 +21,40 @@ func TestBuildColumns_DefaultWeights(t *testing.T) {
 			name:  "standard terminal width",
 			width: 100,
 			want: []table.Column{
-				{Title: "Id", Width: 5},
-				{Title: "IP", Width: 17},
-				{Title: "MAC", Width: 23},
-				{Title: "Vendor", Width: 22},
-				{Title: "Hostname", Width: 23},
+				{Title: "IP", Width: 18},
+				{Title: "MAC", Width: 24},
+				{Title: "Vendor", Width: 23},
+				{Title: "Hostname", Width: 24},
 			},
 		},
 		{
 			name:  "narrow terminal",
 			width: 50,
 			want: []table.Column{
-				{Title: "Id", Width: 5},
-				{Title: "IP", Width: 7},
-				{Title: "MAC", Width: 9},
-				{Title: "Vendor", Width: 9},
-				{Title: "Hostname", Width: 9},
+				{Title: "IP", Width: 8},
+				{Title: "MAC", Width: 11},
+				{Title: "Vendor", Width: 10},
+				{Title: "Hostname", Width: 11},
 			},
 		},
 		{
 			name:  "wide terminal",
 			width: 200,
 			want: []table.Column{
-				{Title: "Id", Width: 5},
-				{Title: "IP", Width: 37},
-				{Title: "MAC", Width: 50},
-				{Title: "Vendor", Width: 48},
-				{Title: "Hostname", Width: 50},
+				{Title: "IP", Width: 38},
+				{Title: "MAC", Width: 51},
+				{Title: "Vendor", Width: 49},
+				{Title: "Hostname", Width: 51},
 			},
 		},
 		{
 			name:  "minimum width",
 			width: 20,
 			want: []table.Column{
-				{Title: "Id", Width: 5},
-				{Title: "IP", Width: 1},
-				{Title: "MAC", Width: 1},
-				{Title: "Vendor", Width: 1},
-				{Title: "Hostname", Width: 1},
+				{Title: "IP", Width: 2},
+				{Title: "MAC", Width: 3},
+				{Title: "Vendor", Width: 3},
+				{Title: "Hostname", Width: 3},
 			},
 		},
 	}
@@ -107,17 +103,16 @@ func TestBuildColumns_CustomWeights(t *testing.T) {
 	width := 100
 	columns := buildColumns(width, customWeights, 0, false)
 
-	// remaining = 100 - 5 - 8 = 87
-	// IP: 87 * 0.30 = 26.1 → 26
-	// MAC: 87 * 0.30 = 26.1 → 26
-	// Vendor: 87 * 0.20 = 17.4 → 17
-	// Hostname: 87 * 0.20 = 17.4 → 17
+	// remaining = 100 - 8 = 92
+	// IP: 92 * 0.30 = 27.6 → 27
+	// MAC: 92 * 0.30 = 27.6 → 27
+	// Vendor: 92 * 0.20 = 18.4 → 18
+	// Hostname: 92 * 0.20 = 18.4 → 18
 	expected := []table.Column{
-		{Title: "Id", Width: TableIDWidth},
-		{Title: "IP", Width: 26},
-		{Title: "MAC", Width: 26},
-		{Title: "Vendor", Width: 17},
-		{Title: "Hostname", Width: 17},
+		{Title: "IP", Width: 27},
+		{Title: "MAC", Width: 27},
+		{Title: "Vendor", Width: 18},
+		{Title: "Hostname", Width: 18},
 	}
 
 	if !reflect.DeepEqual(columns, expected) {
@@ -143,7 +138,7 @@ func TestBuildRows(t *testing.T) {
 				},
 			},
 			want: []table.Row{
-				{"0", "192.168.1.10", "AA:BB:CC:DD:EE:FF", "Apple Inc.", "macbook.local"},
+				{"192.168.1.10", "AA:BB:CC:DD:EE:FF", "Apple Inc.", "macbook.local"},
 			},
 		},
 		{
@@ -165,15 +160,15 @@ func TestBuildRows(t *testing.T) {
 				},
 			},
 			want: []table.Row{
-				{"0", "192.168.1.1", "00:11:22:33:44:55", "Router Co", "router.local"},
-				{"1", "192.168.1.2", "AA:BB:CC:DD:EE:00", "Device Inc", "device.local"},
+				{"192.168.1.1", "00:11:22:33:44:55", "Router Co", "router.local"},
+				{"192.168.1.2", "AA:BB:CC:DD:EE:00", "Device Inc", "device.local"},
 			},
 		},
 		{
 			name:  "empty host list",
 			hosts: []scanner.HostInfo{},
 			want: []table.Row{
-				{"-", "No hosts found", "-", "-", "-"},
+				{"No hosts found", "-", "-", "-"},
 			},
 		},
 		{
@@ -188,7 +183,7 @@ func TestBuildRows(t *testing.T) {
 				},
 			},
 			want: []table.Row{
-				{"0", "192.168.1.100", "none", "none", "none"},
+				{"192.168.1.100", "none", "none", "none"},
 			},
 		},
 	}
@@ -222,11 +217,11 @@ func TestBuildRows_Preallocation(t *testing.T) {
 		t.Errorf("expected 1000 rows, got %d", len(rows))
 	}
 
-	if rows[0][0] != "0" {
-		t.Errorf("first row ID = %s; want %s", rows[0][0], "0")
+	if rows[0][0] != "192.168.1.1" {
+		t.Errorf("first row IP = %s; want %s", rows[0][0], "192.168.1.1")
 	}
-	if rows[999][0] != "999" {
-		t.Errorf("last row ID = %s; want %s", rows[999][0], "999")
+	if rows[999][0] != "192.168.1.1" {
+		t.Errorf("last row IP = %s; want %s", rows[999][0], "192.168.1.1")
 	}
 }
 
@@ -296,8 +291,8 @@ func TestUIModel_Init(t *testing.T) {
 	model := NewUIModel([]scanner.HostInfo{}, nil, "")
 	cmd := model.Init()
 
-	if cmd != nil {
-		t.Errorf("Init() returned non-nil command: %v", cmd)
+	if cmd == nil {
+		t.Error("Init() should return a WindowSize command, got nil")
 	}
 }
 
