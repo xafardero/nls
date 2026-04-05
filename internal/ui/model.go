@@ -48,10 +48,7 @@ const helpText = `Keyboard Shortcuts:
 
   Actions:
     s            SSH to selected host
-    y            Copy IP to clipboard
-    m            Copy MAC to clipboard
-    h            Copy hostname to clipboard
-    a            Copy all fields to clipboard
+    c            Copy IP to clipboard
     r            Rescan network
 
   Search & Sort:

@@ -83,7 +83,7 @@ func (m UIModel) renderNormalView() string {
 	baseView := baseStyle.Render(m.table.View())
 
 	// Build footer with all shortcuts
-	footer := "[?: help] [/: search] [1-4: sort] [r: rescan] [y/m/h/a: copy] [s: ssh] [q: quit]"
+	footer := "[?: help] [/: search] [1-4: sort] [r: rescan] [c: copy IP] [s: ssh] [q: quit]"
 
 	// Show scanning indicator if in progress
 	if m.isScanning {

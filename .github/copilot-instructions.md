@@ -72,7 +72,10 @@ nls/
 │       ├── update.go        - Event handling (Init/Update)
 │       ├── styles.go        - Lipgloss styling
 │       ├── helpers.go       - Helper functions (columns, rows, terminal)
-│       └── helpers_test.go  - UI tests
+│       ├── filter_sort_test.go - Filter and sort behavior tests
+│       ├── helpers_test.go  - UI helper tests
+│       ├── keyboard_test.go - Keyboard interaction tests
+│       └── update_test.go   - Update loop and state transition tests
 ├── go.mod
 └── README.md
 ```
@@ -124,17 +127,22 @@ nls/
 
 ### UI Package (`internal/ui`)
 - **model.go**: UIModel struct, constants, NewUIModel() constructor
-- **view.go**: Rendering logic (View(), renderPromptView(), renderNormalView())
-- **update.go**: Event handling (Init(), Update(), keyboard handlers)
+- **view.go**: Rendering logic (View(), renderHelpView(), renderSearchView(), renderSSHPromptView(), renderNormalView())
+- **update.go**: Event handling (Init(), Update(), keyboard handlers, rescan workflow)
 - **styles.go**: Lipgloss styles (base, selected, prompt)
-- **helpers.go**: Utility functions (buildColumns, buildRows, getTerminalSize)
+- **helpers.go**: Utility functions (buildColumns, buildRows, getTerminalSize, filtering, sorting)
   - ColumnWeights for flexible column sizing (20% IP, 27% MAC, 26% Vendor, 27% Hostname)
   - Terminal size fallback via COLUMNS/LINES env vars
 - **Table Interaction**:
   - `q`/`ctrl+c`: quit
   - `esc`: toggle table focus
+  - `?`: show or close help screen
+  - `/`: open host search/filter
+  - `c`: copy selected host IP to clipboard
+  - `r`: rescan the current CIDR
   - `s`: initiate SSH connection
   - `enter`: connect (when in SSH prompt)
+  - `1`-`4`: sort by IP, MAC, Vendor, or Hostname
   - `↑`/`↓` or `j`/`k`: navigate rows
 
 ### Styling Conventions
@@ -143,7 +151,7 @@ nls/
 - Selected row: yellow text (`229`) on blue background (`57`), bold + underlined
 - Table height: defaults to MinTableHeight (7), adjusts to terminal
 - SSH prompt: rounded border with 50-character width
-- Constants: TableIDWidth (5), TablePaddingWidth (8), SSHUsernameMaxLen (32)
+- Key constants: TablePaddingWidth (8), SSHUsernameMaxLen (32), HelpBoxWidth (70), SearchInputWidth (50)
 
 ### Error Handling
 - Config validation errors: returned before scan starts
@@ -157,12 +165,13 @@ nls/
 ### Test Structure
 - Use table-driven tests for comprehensive coverage
 - Test files named `*_test.go` in same package
+- Tests may be grouped by behavior or concern; they do not need a 1:1 filename match with production files
 - Helper functions marked with `t.Helper()`
 - Subtests with `t.Run()` for better organization
 
 ### Test Coverage Goals
 - Critical business logic (scanner, UI helpers, config): 80%+
-- Focus on public exported functions
+- Focus on behavior and critical paths, including unexported helpers when they contain core logic
 - Test behavior, not implementation details
 - Use `progress.NoOp{}` for testing scanner without UI feedback
 - Mock Scanner interface for testing app layer
@@ -196,14 +205,15 @@ go test -run TestName ./...      # Specific test
 - No circular dependencies
 
 ### File Size Guidelines
-- Keep files under 150 lines when possible
-- Split large files by responsibility (model/view/update)
+- Keep files focused and split them when doing so clearly improves readability or responsibility boundaries
+- Split large files by responsibility (model/view/update) when the boundary is natural
 - One primary concept per file
 
 ### Testing Philosophy
 - Unit tests for business logic (extractHostInfo, buildColumns, config validation)
 - Integration tests for full workflows (future: app_test.go with mock scanner)
-- No tests for pure UI rendering (Bubbletea handles this)
+- Avoid snapshot-heavy UI rendering tests; keep UI view tests lightweight and behavior-oriented
+- UI tests should focus on keyboard handling, filtering, sorting, and update-state behavior
 - Table-driven tests for comprehensive coverage
 
 ## Notes

@@ -262,57 +262,13 @@ func (m UIModel) handleNormalKeys(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		m.isScanning = true
 		return m, doRescan(m.scanner, m.cidr)
 
-	case "y":
+	case "c":
 		// Copy IP to clipboard
 		selectedRow := m.table.SelectedRow()
 		if len(selectedRow) > 0 && selectedRow[0] != "No hosts found" {
 			ip := selectedRow[0]
 			if err := clipboard.WriteAll(ip); err == nil {
 				m.statusMessage = "IP copied to clipboard!"
-				m.statusExpiry = time.Now().Add(2 * time.Second)
-				return m, tea.Tick(2*time.Second, func(time.Time) tea.Msg {
-					return clearStatusMsg{}
-				})
-			}
-		}
-
-	case "m":
-		// Copy MAC to clipboard
-		selectedRow := m.table.SelectedRow()
-		if len(selectedRow) > 1 && selectedRow[0] != "No hosts found" {
-			mac := selectedRow[1]
-			if err := clipboard.WriteAll(mac); err == nil {
-				m.statusMessage = "MAC address copied to clipboard!"
-				m.statusExpiry = time.Now().Add(2 * time.Second)
-				return m, tea.Tick(2*time.Second, func(time.Time) tea.Msg {
-					return clearStatusMsg{}
-				})
-			}
-		}
-
-	case "h":
-		// Copy hostname to clipboard
-		selectedRow := m.table.SelectedRow()
-		if len(selectedRow) > 3 && selectedRow[0] != "No hosts found" {
-			hostname := selectedRow[3]
-			if err := clipboard.WriteAll(hostname); err == nil {
-				m.statusMessage = "Hostname copied to clipboard!"
-				m.statusExpiry = time.Now().Add(2 * time.Second)
-				return m, tea.Tick(2*time.Second, func(time.Time) tea.Msg {
-					return clearStatusMsg{}
-				})
-			}
-		}
-
-	case "a":
-		// Copy all fields to clipboard
-		selectedRow := m.table.SelectedRow()
-		if len(selectedRow) > 3 && selectedRow[0] != "No hosts found" {
-			// Format: IP\tMAC\tVendor\tHostname
-			allFields := fmt.Sprintf("%s\t%s\t%s\t%s",
-				selectedRow[0], selectedRow[1], selectedRow[2], selectedRow[3])
-			if err := clipboard.WriteAll(allFields); err == nil {
-				m.statusMessage = "All fields copied to clipboard!"
 				m.statusExpiry = time.Now().Add(2 * time.Second)
 				return m, tea.Tick(2*time.Second, func(time.Time) tea.Msg {
 					return clearStatusMsg{}
