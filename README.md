@@ -61,8 +61,8 @@ sudo nls [CIDR]
 - Displays IP, MAC address, vendor, and hostname for each host
 - Live search/filter across all fields
 - Column sorting with visual indicators (↑/↓)
-- Rescan network without restarting the application
-- Copy any field to clipboard
+- Rescan the network without restarting the application
+- Copy IP field to the clipboard
 - Built-in help screen
 
 ---
