@@ -40,10 +40,7 @@ sudo nls [CIDR]
 
 **Actions:**
 - `s`: SSH to selected host
-- `y`: Copy IP to clipboard
-- `m`: Copy MAC address to clipboard
-- `h`: Copy hostname to clipboard
-- `a`: Copy all fields to clipboard (tab-separated)
+- `c`: Copy IP to clipboard
 - `r`: Rescan network (refreshes host list)
 
 **Search & Sort:**

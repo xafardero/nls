@@ -182,69 +182,6 @@ func TestHandleNormalKeys_SortToggle(t *testing.T) {
 	}
 }
 
-func TestHandleNormalKeys_CopyMAC(t *testing.T) {
-	hosts := []scanner.HostInfo{
-		{ID: 0, IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
-	}
-	model := NewUIModel(hosts, nil, "")
-
-	// Press m to copy MAC
-	msg := tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune("m")}
-	updatedModel, cmd := model.Update(msg)
-	m := updatedModel.(UIModel)
-
-	// Clipboard may fail in CI environment
-	if m.statusMessage == "" && cmd == nil {
-		t.Log("clipboard write may have failed in test environment, which is expected")
-	} else if m.statusMessage == "MAC address copied to clipboard!" {
-		if cmd == nil {
-			t.Error("expected tick command to be returned for clearing status")
-		}
-	}
-}
-
-func TestHandleNormalKeys_CopyHostname(t *testing.T) {
-	hosts := []scanner.HostInfo{
-		{ID: 0, IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
-	}
-	model := NewUIModel(hosts, nil, "")
-
-	// Press h to copy hostname
-	msg := tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune("h")}
-	updatedModel, cmd := model.Update(msg)
-	m := updatedModel.(UIModel)
-
-	// Clipboard may fail in CI environment
-	if m.statusMessage == "" && cmd == nil {
-		t.Log("clipboard write may have failed in test environment, which is expected")
-	} else if m.statusMessage == "Hostname copied to clipboard!" {
-		if cmd == nil {
-			t.Error("expected tick command to be returned for clearing status")
-		}
-	}
-}
-
-func TestHandleNormalKeys_CopyAll(t *testing.T) {
-	hosts := []scanner.HostInfo{
-		{ID: 0, IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
-	}
-	model := NewUIModel(hosts, nil, "")
-
-	// Press a to copy all fields
-	msg := tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune("a")}
-	updatedModel, cmd := model.Update(msg)
-	m := updatedModel.(UIModel)
-
-	// Clipboard may fail in CI environment
-	if m.statusMessage == "" && cmd == nil {
-		t.Log("clipboard write may have failed in test environment, which is expected")
-	} else if m.statusMessage == "All fields copied to clipboard!" {
-		if cmd == nil {
-			t.Error("expected tick command to be returned for clearing status")
-		}
-	}
-}
-
 func TestView_HelpMode(t *testing.T) {
 	hosts := []scanner.HostInfo{
 		{ID: 0, IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},

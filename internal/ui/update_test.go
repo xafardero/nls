@@ -123,9 +123,9 @@ func TestHandleNormalKeys_CopyIP_ValidHost(t *testing.T) {
 	}
 	model := NewUIModel(hosts, nil, "")
 
-	// Note: We can't reliably test clipboard.WriteAll() without mocking or system access
-	// This test verifies the state changes when 'y' is pressed
-	msg := tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune("y")}
+	// Note: We can't reliably test clipboard.WriteAll() without mocking or system access.
+	// This test verifies the state changes when 'c' is pressed.
+	msg := tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune("c")}
 	updatedModel, cmd := model.Update(msg)
 	m := updatedModel.(UIModel)
 
@@ -150,7 +150,7 @@ func TestHandleNormalKeys_CopyIP_NoHostsFound(t *testing.T) {
 	model := NewUIModel([]scanner.HostInfo{}, nil, "")
 	initialMessage := model.statusMessage
 
-	msg := tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune("y")}
+	msg := tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune("c")}
 	updatedModel, cmd := model.Update(msg)
 	m := updatedModel.(UIModel)
 
