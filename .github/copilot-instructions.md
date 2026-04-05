@@ -127,7 +127,7 @@ nls/
 
 ### UI Package (`internal/ui`)
 - **model.go**: UIModel struct, constants, NewUIModel() constructor
-- **view.go**: Rendering logic (View(), renderPromptView(), renderNormalView())
+- **view.go**: Rendering logic (View(), renderHelpView(), renderSearchView(), renderSSHPromptView(), renderNormalView())
 - **update.go**: Event handling (Init(), Update(), keyboard handlers, rescan workflow)
 - **styles.go**: Lipgloss styles (base, selected, prompt)
 - **helpers.go**: Utility functions (buildColumns, buildRows, getTerminalSize, filtering, sorting)
