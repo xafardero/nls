@@ -31,6 +31,7 @@ sudo nls [CIDR]
 ```
 - If no CIDR is specified, defaults to `192.168.1.0/24`
 - Example: `sudo nls 10.0.0.0/24`
+- Check the installed version: `nls --version` (or `nls -v`)
 
 **Keyboard Shortcuts:**
 

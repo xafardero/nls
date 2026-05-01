@@ -1,7 +1,12 @@
 {
   "permissions": {
     "allow": [
-      "Bash(go test *)"
+      "Bash(go test *)",
+      "Bash(go build *)",
+      "Bash(/tmp/nls-test --version)",
+      "Bash(/tmp/nls-test -v)",
+      "Bash(./nls --version)",
+      "Bash(./nls -v)"
     ]
   }
 }

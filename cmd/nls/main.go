@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"os"
 
@@ -10,11 +11,32 @@ import (
 	"nls/internal/scanner"
 )
 
+var version = "dev"
+
+func parseArgs(arguments []string) (showVersion bool, cidr string) {
+	fs := flag.NewFlagSet("nls", flag.ContinueOnError)
+	versionFlag := fs.Bool("version", false, "print version and exit")
+	vFlag := fs.Bool("v", false, "print version and exit")
+	_ = fs.Parse(arguments)
+	if fs.NArg() > 0 {
+		cidr = fs.Arg(0)
+	}
+	showVersion = *versionFlag || *vFlag
+	return
+}
+
 func run() error {
+	showVersion, cidr := parseArgs(os.Args[1:])
+
+	if showVersion {
+		fmt.Printf("nls %s\n", version)
+		return nil
+	}
+
 	config := app.DefaultConfig()
 
-	if len(os.Args) > 1 {
-		config.CIDR = os.Args[1]
+	if cidr != "" {
+		config.CIDR = cidr
 	}
 
 	var progressReporter progress.Reporter
