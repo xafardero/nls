@@ -177,6 +177,52 @@ func TestHandleNormalKeys_SSHWithNoHostsFound(t *testing.T) {
 	}
 }
 
+func TestUpdate_SSHDoneMsg(t *testing.T) {
+	hosts := []scanner.HostInfo{
+		{ID: 0, IP: "192.168.1.10", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
+	}
+
+	tests := []struct {
+		name            string
+		err             error
+		wantMode        viewMode
+		wantStatusEmpty bool
+	}{
+		{
+			name:            "success resets mode with no status",
+			err:             nil,
+			wantMode:        modeNormal,
+			wantStatusEmpty: true,
+		},
+		{
+			name:            "failure resets mode and shows error",
+			err:             fmt.Errorf("connection refused"),
+			wantMode:        modeNormal,
+			wantStatusEmpty: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			model := NewUIModel(hosts, nil, "")
+			model.mode = modeSSHPrompt
+
+			updatedModel, _ := model.Update(sshDoneMsg{err: tt.err})
+			m := updatedModel.(UIModel)
+
+			if m.mode != tt.wantMode {
+				t.Errorf("mode = %v; want %v", m.mode, tt.wantMode)
+			}
+			if tt.wantStatusEmpty && m.statusMessage != "" {
+				t.Errorf("statusMessage = %q; want empty", m.statusMessage)
+			}
+			if !tt.wantStatusEmpty && m.statusMessage == "" {
+				t.Error("statusMessage is empty; want error message")
+			}
+		})
+	}
+}
+
 func TestStatusMessage_Expiry(t *testing.T) {
 	hosts := []scanner.HostInfo{
 		{ID: 0, IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},

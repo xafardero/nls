@@ -26,6 +26,11 @@ type rescanErrorMsg struct {
 	err error
 }
 
+// sshDoneMsg is sent when an SSH process exits, with a non-nil err on failure.
+type sshDoneMsg struct {
+	err error
+}
+
 // doRescan performs a network rescan in a goroutine and returns the result as a message.
 // Creates a new scanner with NoOp progress reporter to avoid terminal output conflicts with the TUI.
 // If a non-NmapScanner is passed (e.g., mock for testing), it uses that scanner directly.
@@ -95,6 +100,18 @@ func (m UIModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, tea.Tick(5*time.Second, func(time.Time) tea.Msg {
 			return clearStatusMsg{}
 		})
+
+	case sshDoneMsg:
+		m.mode = modeNormal
+		m.table.Focus()
+		if msg.err != nil {
+			m.statusMessage = fmt.Sprintf("SSH failed: %v", msg.err)
+			m.statusExpiry = time.Now().Add(5 * time.Second)
+			return m, tea.Tick(5*time.Second, func(time.Time) tea.Msg {
+				return clearStatusMsg{}
+			})
+		}
+		return m, nil
 
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
@@ -203,7 +220,7 @@ func (m UIModel) handleSSHPromptKeys(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 
 		sshCmd := exec.Command("ssh", fmt.Sprintf("%s@%s", username, m.selectedIP))
 		return m, tea.ExecProcess(sshCmd, func(err error) tea.Msg {
-			return nil
+			return sshDoneMsg{err: err}
 		})
 
 	default:
