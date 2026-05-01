@@ -1,4 +1,8 @@
-# Copilot Instructions for nls
+@.claude/go.md
+
+## Claude Workflow Rules
+
+- **Always create a git branch before starting any fix or feature.** Branch off `main` using the pattern `fix/<short-description>` for bugs or `feat/<short-description>` for new features. Do this before touching any files.
 
 ## Project Overview
 nls is a terminal-based network scanner that lists hosts in a network using nmap's ping scan. It combines a Go-based network scanning backend with a Bubbletea TUI (terminal user interface) for interactive display.
@@ -221,7 +225,3 @@ go test -run TestName ./...      # Specific test
 - Must run with root/sudo for nmap ping scan to work
 - Tests can run without root/sudo (unit tests only)
 - Releases automated via GitHub Actions on version tags
-- All code follows golang-patterns skill conventions
-- Documentation follows Go doc comment standards
-- Avoid inline comments except for complex logic; prefer descriptive function/variable names
-- Architecture follows 2026 Go best practices (interfaces, DI, separation of concerns)
