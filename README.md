@@ -2,7 +2,7 @@
 
 A fast, terminal-based network scanner that lists hosts in a network using nmap's ping scan. Results are displayed in an interactive terminal UI for easy browsing.
 
-![Demo](img/screenshot.png)
+![Demo](img/demo.gif)
 
 ## Download
 Download the latest release for Linux (amd64/arm64) or macOS (arm64) from the [Releases page](https://github.com/xafardero/nls/releases).
