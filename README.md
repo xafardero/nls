@@ -1,6 +1,6 @@
 # nls
 
-A fast, terminal-based network scanner that lists hosts in a network using nmap's ping scan. Results are displayed in an interactive terminal UI for easy browsing.
+A terminal-based network scanner that lists hosts in a network using nmap's ping scan. Results are displayed in an interactive terminal UI for easy browsing.
 
 ![Demo](img/demo.gif)
 
@@ -9,7 +9,7 @@ Download the latest release for Linux (amd64/arm64) or macOS (arm64) from the [R
 
 ```sh
 # Replace {OS}-{ARCH} with your platform (e.g., linux-amd64, macos-arm64)
-curl -L https://github.com/xafardero/nls/releases/download/v0.1.4/nls-{OS}-{ARCH} -o nls
+curl -L https://github.com/xafardero/nls/releases/download/v0.2.0/nls-linux-amd64 -o nls
 chmod +x nls
 sudo mv nls /usr/local/bin/
 ```
@@ -58,13 +58,9 @@ sudo nls [CIDR]
 
 ## Features
 - Fast network scanning using nmap's ping scan
-- Interactive terminal UI with keyboard navigation
 - Displays IP, MAC address, vendor, and hostname for each host
-- Live search/filter across all fields
-- Column sorting with visual indicators (↑/↓)
-- Rescan the network without restarting the application
-- Copy IP field to the clipboard
-- Built-in help screen
+- SSH directly to any host from the UI
+- Live search/filter, column sorting, clipboard copy, and rescan — all without leaving the terminal
 
 ---
 MIT License
