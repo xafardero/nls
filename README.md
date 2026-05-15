@@ -27,9 +27,9 @@ go build -o nls ./cmd/nls
 Run as root (required for nmap ping scan):
 
 ```sh
-sudo nls [CIDR]
+sudo nls <CIDR>
 ```
-- If no CIDR is specified, defaults to `192.168.1.0/24`
+- CIDR is required (e.g., `sudo nls 192.168.1.0/24`)
 - Example: `sudo nls 10.0.0.0/24`
 - Check the installed version: `nls --version` (or `nls -v`)
 

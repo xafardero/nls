@@ -34,10 +34,7 @@ func run() error {
 	}
 
 	config := app.DefaultConfig()
-
-	if cidr != "" {
-		config.CIDR = cidr
-	}
+	config.CIDR = cidr
 
 	var progressReporter progress.Reporter
 	if config.ShowProgress {

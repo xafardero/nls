@@ -8,8 +8,8 @@ import (
 func TestDefaultConfig(t *testing.T) {
 	cfg := DefaultConfig()
 
-	if cfg.CIDR != "192.168.1.0/24" {
-		t.Errorf("CIDR = %q; want %q", cfg.CIDR, "192.168.1.0/24")
+	if cfg.CIDR != "" {
+		t.Errorf("CIDR = %q; want %q", cfg.CIDR, "")
 	}
 
 	if cfg.Timeout != 5*time.Minute {
@@ -35,6 +35,15 @@ func TestConfig_Validate(t *testing.T) {
 				ShowProgress: true,
 			},
 			wantErr: false,
+		},
+		{
+			name: "empty CIDR",
+			config: &Config{
+				CIDR:         "",
+				Timeout:      5 * time.Minute,
+				ShowProgress: true,
+			},
+			wantErr: true,
 		},
 		{
 			name: "invalid CIDR",

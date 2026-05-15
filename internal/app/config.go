@@ -23,18 +23,21 @@ type Config struct {
 }
 
 // DefaultConfig returns a Config with sensible default values.
-// CIDR defaults to the common home network range 192.168.1.0/24.
+// CIDR must be set by the caller before calling Validate.
 func DefaultConfig() *Config {
 	return &Config{
-		CIDR:         "192.168.1.0/24",
 		Timeout:      5 * time.Minute,
 		ShowProgress: true,
 	}
 }
 
 // Validate checks if the configuration is valid.
-// Returns an error if CIDR is invalid or timeout is non-positive.
+// Returns an error if CIDR is missing or invalid, or timeout is non-positive.
 func (c *Config) Validate() error {
+	if c.CIDR == "" {
+		return fmt.Errorf("CIDR is required: specify a network range to scan (e.g., nls 192.168.1.0/24)")
+	}
+
 	if _, _, err := net.ParseCIDR(c.CIDR); err != nil {
 		return fmt.Errorf("invalid CIDR format %s: %w", c.CIDR, err)
 	}
