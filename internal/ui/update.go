@@ -34,9 +34,9 @@ type sshDoneMsg struct {
 // doRescan performs a network rescan in a goroutine and returns the result as a message.
 // Creates a new scanner with NoOp progress reporter to avoid terminal output conflicts with the TUI.
 // If a non-NmapScanner is passed (e.g., mock for testing), it uses that scanner directly.
-func doRescan(s scanner.Scanner, cidr string) tea.Cmd {
+func doRescan(s scanner.Scanner, cidr string, timeout time.Duration) tea.Cmd {
 	return func() tea.Msg {
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+		ctx, cancel := context.WithTimeout(context.Background(), timeout)
 		defer cancel()
 
 		// For NmapScanner, create a silent version to avoid progress output interfering with TUI
@@ -277,7 +277,7 @@ func (m UIModel) handleNormalKeys(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 		m.isScanning = true
-		return m, doRescan(m.scanner, m.cidr)
+		return m, doRescan(m.scanner, m.cidr, m.timeout)
 
 	case "c":
 		// Copy IP to clipboard

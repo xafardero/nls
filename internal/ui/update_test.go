@@ -16,7 +16,7 @@ func TestUpdate_ClearStatusMsg(t *testing.T) {
 	hosts := []scanner.HostInfo{
 		{ID: 0, IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
 	}
-	model := NewUIModel(hosts, nil, "")
+	model := NewUIModel(hosts, nil, "", 5*time.Minute)
 	model.statusMessage = "Test message"
 	model.statusExpiry = time.Now().Add(5 * time.Second)
 
@@ -34,7 +34,7 @@ func TestUpdate_QuitKey(t *testing.T) {
 	hosts := []scanner.HostInfo{
 		{ID: 0, IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
 	}
-	model := NewUIModel(hosts, nil, "")
+	model := NewUIModel(hosts, nil, "", 5*time.Minute)
 
 	tests := []struct {
 		name string
@@ -63,7 +63,7 @@ func TestUpdate_EscToggleFocus(t *testing.T) {
 	hosts := []scanner.HostInfo{
 		{ID: 0, IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
 	}
-	model := NewUIModel(hosts, nil, "")
+	model := NewUIModel(hosts, nil, "", 5*time.Minute)
 	initialFocus := model.table.Focused()
 
 	msg := tea.KeyMsg{Type: tea.KeyEsc}
@@ -79,7 +79,7 @@ func TestUpdate_SSHPrompt(t *testing.T) {
 	hosts := []scanner.HostInfo{
 		{ID: 0, IP: "192.168.1.10", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
 	}
-	model := NewUIModel(hosts, nil, "")
+	model := NewUIModel(hosts, nil, "", 5*time.Minute)
 
 	// Simulate pressing 's' key
 	msg := tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune("s")}
@@ -98,7 +98,7 @@ func TestUpdate_SSHPromptEscape(t *testing.T) {
 	hosts := []scanner.HostInfo{
 		{ID: 0, IP: "192.168.1.10", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
 	}
-	model := NewUIModel(hosts, nil, "")
+	model := NewUIModel(hosts, nil, "", 5*time.Minute)
 	model.mode = modeSSHPrompt
 	model.selectedIP = "192.168.1.10"
 	model.usernameInput.SetValue("testuser")
@@ -121,7 +121,7 @@ func TestHandleNormalKeys_CopyIP_ValidHost(t *testing.T) {
 		{ID: 0, IP: "192.168.1.100", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
 		{ID: 1, IP: "192.168.1.101", MAC: "11:22:33:44:55:66", Vendor: "Test2", Hostname: "test2.local"},
 	}
-	model := NewUIModel(hosts, nil, "")
+	model := NewUIModel(hosts, nil, "", 5*time.Minute)
 
 	// Note: We can't reliably test clipboard.WriteAll() without mocking or system access.
 	// This test verifies the state changes when 'c' is pressed.
@@ -147,7 +147,7 @@ func TestHandleNormalKeys_CopyIP_ValidHost(t *testing.T) {
 
 func TestHandleNormalKeys_CopyIP_NoHostsFound(t *testing.T) {
 	// Empty hosts list creates a "No hosts found" row
-	model := NewUIModel([]scanner.HostInfo{}, nil, "")
+	model := NewUIModel([]scanner.HostInfo{}, nil, "", 5*time.Minute)
 	initialMessage := model.statusMessage
 
 	msg := tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune("c")}
@@ -165,7 +165,7 @@ func TestHandleNormalKeys_CopyIP_NoHostsFound(t *testing.T) {
 
 func TestHandleNormalKeys_SSHWithNoHostsFound(t *testing.T) {
 	// Empty hosts list creates a "No hosts found" row
-	model := NewUIModel([]scanner.HostInfo{}, nil, "")
+	model := NewUIModel([]scanner.HostInfo{}, nil, "", 5*time.Minute)
 
 	msg := tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune("s")}
 	updatedModel, _ := model.Update(msg)
@@ -204,7 +204,7 @@ func TestUpdate_SSHDoneMsg(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			model := NewUIModel(hosts, nil, "")
+			model := NewUIModel(hosts, nil, "", 5*time.Minute)
 			model.mode = modeSSHPrompt
 
 			updatedModel, _ := model.Update(sshDoneMsg{err: tt.err})
@@ -227,7 +227,7 @@ func TestStatusMessage_Expiry(t *testing.T) {
 	hosts := []scanner.HostInfo{
 		{ID: 0, IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
 	}
-	model := NewUIModel(hosts, nil, "")
+	model := NewUIModel(hosts, nil, "", 5*time.Minute)
 
 	// Set status message with past expiry
 	model.statusMessage = "Expired message"
@@ -270,7 +270,7 @@ func TestUpdate_RescanTrigger(t *testing.T) {
 		},
 	}
 
-	model := NewUIModel(initialHosts, mockScan, "192.168.1.0/24")
+	model := NewUIModel(initialHosts, mockScan, "192.168.1.0/24", 5*time.Minute)
 
 	// Trigger rescan with 'r' key
 	keyMsg := tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'r'}}
@@ -296,7 +296,7 @@ func TestUpdate_RescanComplete(t *testing.T) {
 		{ID: 1, IP: "192.168.1.3", MAC: "AA:AA:AA:AA:AA:AA", Vendor: "New", Hostname: "test3"},
 	}
 
-	model := NewUIModel(initialHosts, nil, "192.168.1.0/24")
+	model := NewUIModel(initialHosts, nil, "192.168.1.0/24", 5*time.Minute)
 	model.isScanning = true
 
 	// Simulate rescan completion
@@ -330,7 +330,7 @@ func TestUpdate_RescanError(t *testing.T) {
 		{ID: 0, IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test"},
 	}
 
-	model := NewUIModel(hosts, nil, "192.168.1.0/24")
+	model := NewUIModel(hosts, nil, "192.168.1.0/24", 5*time.Minute)
 	model.isScanning = true
 
 	// Simulate rescan error
@@ -357,7 +357,7 @@ func TestUpdate_IgnoreKeysWhileScanning(t *testing.T) {
 		{ID: 0, IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test"},
 	}
 
-	model := NewUIModel(hosts, nil, "192.168.1.0/24")
+	model := NewUIModel(hosts, nil, "192.168.1.0/24", 5*time.Minute)
 	model.isScanning = true
 
 	// Try to trigger actions while scanning
@@ -387,7 +387,7 @@ func TestUpdate_RescanWithActiveFilter(t *testing.T) {
 		{ID: 1, IP: "192.168.1.3", MAC: "AA:AA:AA:AA:AA:AA", Vendor: "Samsung", Hostname: "test3"},
 	}
 
-	model := NewUIModel(initialHosts, nil, "192.168.1.0/24")
+	model := NewUIModel(initialHosts, nil, "192.168.1.0/24", 5*time.Minute)
 	model.searchActive = true
 	model.searchQuery = "Apple"
 	model.filteredHosts = initialHosts // Simulate previous filter
@@ -412,7 +412,7 @@ func TestUpdate_WindowResize(t *testing.T) {
 	hosts := []scanner.HostInfo{
 		{ID: 0, IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
 	}
-	model := NewUIModel(hosts, nil, "")
+	model := NewUIModel(hosts, nil, "", 5*time.Minute)
 
 	tests := []struct {
 		name           string

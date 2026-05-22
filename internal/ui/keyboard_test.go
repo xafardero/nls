@@ -2,6 +2,7 @@ package ui
 
 import (
 	"testing"
+	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
 
@@ -12,7 +13,7 @@ func TestHandleNormalKeys_HelpScreen(t *testing.T) {
 	hosts := []scanner.HostInfo{
 		{ID: 0, IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
 	}
-	model := NewUIModel(hosts, nil, "")
+	model := NewUIModel(hosts, nil, "", 5*time.Minute)
 
 	// Press ? to show help
 	msg := tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune("?")}
@@ -28,7 +29,7 @@ func TestHandleHelpKeys_Exit(t *testing.T) {
 	hosts := []scanner.HostInfo{
 		{ID: 0, IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
 	}
-	model := NewUIModel(hosts, nil, "")
+	model := NewUIModel(hosts, nil, "", 5*time.Minute)
 	model.mode = modeHelp
 
 	tests := []struct {
@@ -64,7 +65,7 @@ func TestHandleNormalKeys_SearchMode(t *testing.T) {
 	hosts := []scanner.HostInfo{
 		{ID: 0, IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
 	}
-	model := NewUIModel(hosts, nil, "")
+	model := NewUIModel(hosts, nil, "", 5*time.Minute)
 
 	// Press / to activate search
 	msg := tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune("/")}
@@ -80,7 +81,7 @@ func TestHandleSearchKeys_Cancel(t *testing.T) {
 	hosts := []scanner.HostInfo{
 		{ID: 0, IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
 	}
-	model := NewUIModel(hosts, nil, "")
+	model := NewUIModel(hosts, nil, "", 5*time.Minute)
 	model.mode = modeSearch
 	model.searchInput.SetValue("test query")
 
@@ -102,7 +103,7 @@ func TestHandleSearchKeys_ApplyFilter(t *testing.T) {
 		{ID: 0, IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Apple", Hostname: "test.local"},
 		{ID: 1, IP: "192.168.1.2", MAC: "11:22:33:44:55:66", Vendor: "Samsung", Hostname: "phone.local"},
 	}
-	model := NewUIModel(hosts, nil, "")
+	model := NewUIModel(hosts, nil, "", 5*time.Minute)
 	model.mode = modeSearch
 	model.searchInput.SetValue("apple")
 
@@ -130,7 +131,7 @@ func TestHandleNormalKeys_SortColumns(t *testing.T) {
 		{ID: 0, IP: "192.168.1.10", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Vendor A", Hostname: "host1"},
 		{ID: 1, IP: "192.168.1.5", MAC: "11:22:33:44:55:66", Vendor: "Vendor B", Hostname: "host2"},
 	}
-	model := NewUIModel(hosts, nil, "")
+	model := NewUIModel(hosts, nil, "", 5*time.Minute)
 
 	tests := []struct {
 		name            string
@@ -165,7 +166,7 @@ func TestHandleNormalKeys_SortToggle(t *testing.T) {
 	hosts := []scanner.HostInfo{
 		{ID: 0, IP: "192.168.1.10", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Vendor A", Hostname: "host1"},
 	}
-	model := NewUIModel(hosts, nil, "")
+	model := NewUIModel(hosts, nil, "", 5*time.Minute)
 	model.sortColumn = 1
 	model.sortAscending = true
 
@@ -186,7 +187,7 @@ func TestView_HelpMode(t *testing.T) {
 	hosts := []scanner.HostInfo{
 		{ID: 0, IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
 	}
-	model := NewUIModel(hosts, nil, "")
+	model := NewUIModel(hosts, nil, "", 5*time.Minute)
 	model.mode = modeHelp
 
 	view := model.View()
@@ -204,7 +205,7 @@ func TestView_SearchMode(t *testing.T) {
 	hosts := []scanner.HostInfo{
 		{ID: 0, IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
 	}
-	model := NewUIModel(hosts, nil, "")
+	model := NewUIModel(hosts, nil, "", 5*time.Minute)
 	model.mode = modeSearch
 
 	view := model.View()
@@ -218,7 +219,7 @@ func TestView_NormalModeWithFilter(t *testing.T) {
 	hosts := []scanner.HostInfo{
 		{ID: 0, IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Apple", Hostname: "test.local"},
 	}
-	model := NewUIModel(hosts, nil, "")
+	model := NewUIModel(hosts, nil, "", 5*time.Minute)
 	model.searchActive = true
 	model.searchQuery = "apple"
 

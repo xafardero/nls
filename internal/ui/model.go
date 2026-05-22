@@ -101,6 +101,7 @@ type UIModel struct {
 	// Rescan state
 	scanner    scanner.Scanner
 	cidr       string
+	timeout    time.Duration
 	isScanning bool
 }
 
@@ -108,7 +109,7 @@ type UIModel struct {
 // and cannot be used with its zero value due to dependencies on
 // the Bubbletea table component.
 // The scanner and cidr parameters enable rescan functionality.
-func NewUIModel(hosts []scanner.HostInfo, s scanner.Scanner, cidr string) UIModel {
+func NewUIModel(hosts []scanner.HostInfo, s scanner.Scanner, cidr string, timeout time.Duration) UIModel {
 	width, height := getTerminalSize()
 	tableHeight := height
 	if tableHeight < MinTableHeight {
@@ -153,6 +154,7 @@ func NewUIModel(hosts []scanner.HostInfo, s scanner.Scanner, cidr string) UIMode
 		height:        height,
 		scanner:       s,
 		cidr:          cidr,
+		timeout:       timeout,
 		isScanning:    false,
 		sortAscending: true,
 	}

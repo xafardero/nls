@@ -3,6 +3,7 @@ package ui
 import (
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/charmbracelet/bubbles/table"
 
@@ -262,7 +263,7 @@ func TestNewUIModel(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			model := NewUIModel(tt.hosts, nil, "")
+			model := NewUIModel(tt.hosts, nil, "", 5*time.Minute)
 
 			if model.table.Cursor() < 0 {
 				t.Error("table cursor not initialized")
@@ -288,7 +289,7 @@ func TestNewUIModel(t *testing.T) {
 }
 
 func TestUIModel_Init(t *testing.T) {
-	model := NewUIModel([]scanner.HostInfo{}, nil, "")
+	model := NewUIModel([]scanner.HostInfo{}, nil, "", 5*time.Minute)
 	cmd := model.Init()
 
 	if cmd == nil {
@@ -317,7 +318,7 @@ func TestUIModel_View(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			model := NewUIModel([]scanner.HostInfo{
 				{ID: 0, IP: "192.168.1.10", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test"},
-			}, nil, "")
+			}, nil, "", 5*time.Minute)
 			model.mode = tt.mode
 			model.selectedIP = tt.selectedIP
 
