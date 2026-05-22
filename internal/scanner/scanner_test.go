@@ -30,7 +30,6 @@ func TestExtractHostInfo(t *testing.T) {
 			},
 			expected: []HostInfo{
 				{
-					ID:       0,
 					IP:       "192.168.1.10",
 					MAC:      "AA:BB:CC:DD:EE:FF",
 					Vendor:   "Apple Inc.",
@@ -64,14 +63,12 @@ func TestExtractHostInfo(t *testing.T) {
 			},
 			expected: []HostInfo{
 				{
-					ID:       0,
 					IP:       "192.168.1.1",
 					MAC:      "00:11:22:33:44:55",
 					Vendor:   "Router Co",
 					Hostname: "router.local",
 				},
 				{
-					ID:       1,
 					IP:       "192.168.1.2",
 					MAC:      "AA:BB:CC:DD:EE:00",
 					Vendor:   "Device Inc",
@@ -92,7 +89,6 @@ func TestExtractHostInfo(t *testing.T) {
 			},
 			expected: []HostInfo{
 				{
-					ID:       0,
 					IP:       "192.168.1.100",
 					MAC:      "none",
 					Vendor:   "none",
@@ -111,7 +107,6 @@ func TestExtractHostInfo(t *testing.T) {
 			},
 			expected: []HostInfo{
 				{
-					ID:       0,
 					IP:       "none",
 					MAC:      "none",
 					Vendor:   "none",
@@ -143,7 +138,6 @@ func TestExtractHostInfo(t *testing.T) {
 			},
 			expected: []HostInfo{
 				{
-					ID:       0,
 					IP:       "192.168.1.50",
 					MAC:      "none",
 					Vendor:   "none",
@@ -164,30 +158,6 @@ func TestExtractHostInfo(t *testing.T) {
 	}
 }
 
-func TestExtractHostInfo_IDSequential(t *testing.T) {
-	scanResult := &nmap.Run{
-		Hosts: []nmap.Host{
-			{Addresses: []nmap.Address{{Addr: "192.168.1.1"}}},
-			{Addresses: []nmap.Address{{Addr: "192.168.1.2"}}},
-			{Addresses: []nmap.Address{{Addr: "192.168.1.3"}}},
-			{Addresses: []nmap.Address{{Addr: "192.168.1.4"}}},
-			{Addresses: []nmap.Address{{Addr: "192.168.1.5"}}},
-		},
-	}
-
-	results := extractHostInfo(scanResult)
-
-	if len(results) != 5 {
-		t.Fatalf("expected 5 hosts, got %d", len(results))
-	}
-
-	for i, host := range results {
-		if host.ID != i {
-			t.Errorf("host %d has ID %d; want %d", i, host.ID, i)
-		}
-	}
-}
-
 func TestExtractHostInfo_SlicePreallocation(t *testing.T) {
 	hosts := make([]nmap.Host, 1000)
 	for i := range hosts {
@@ -205,10 +175,10 @@ func TestExtractHostInfo_SlicePreallocation(t *testing.T) {
 		t.Errorf("expected 1000 hosts, got %d", len(results))
 	}
 
-	for i, result := range results {
-		if result.ID != i {
-			t.Errorf("host at index %d has ID %d", i, result.ID)
-			break
-		}
+	if results[0].IP != "192.168.1.1" {
+		t.Errorf("first host IP = %q; want %q", results[0].IP, "192.168.1.1")
+	}
+	if results[999].IP != "192.168.1.1" {
+		t.Errorf("last host IP = %q; want %q", results[999].IP, "192.168.1.1")
 	}
 }

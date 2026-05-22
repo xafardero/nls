@@ -130,7 +130,6 @@ func TestBuildRows(t *testing.T) {
 			name: "single host",
 			hosts: []scanner.HostInfo{
 				{
-					ID:       0,
 					IP:       "192.168.1.10",
 					MAC:      "AA:BB:CC:DD:EE:FF",
 					Vendor:   "Apple Inc.",
@@ -145,14 +144,12 @@ func TestBuildRows(t *testing.T) {
 			name: "multiple hosts",
 			hosts: []scanner.HostInfo{
 				{
-					ID:       0,
 					IP:       "192.168.1.1",
 					MAC:      "00:11:22:33:44:55",
 					Vendor:   "Router Co",
 					Hostname: "router.local",
 				},
 				{
-					ID:       1,
 					IP:       "192.168.1.2",
 					MAC:      "AA:BB:CC:DD:EE:00",
 					Vendor:   "Device Inc",
@@ -175,7 +172,6 @@ func TestBuildRows(t *testing.T) {
 			name: "hosts with 'none' values",
 			hosts: []scanner.HostInfo{
 				{
-					ID:       0,
 					IP:       "192.168.1.100",
 					MAC:      "none",
 					Vendor:   "none",
@@ -203,7 +199,6 @@ func TestBuildRows_Preallocation(t *testing.T) {
 	hosts := make([]scanner.HostInfo, 1000)
 	for i := range hosts {
 		hosts[i] = scanner.HostInfo{
-			ID:       i,
 			IP:       "192.168.1.1",
 			MAC:      "AA:BB:CC:DD:EE:FF",
 			Vendor:   "Test Vendor",
@@ -251,7 +246,7 @@ func TestNewUIModel(t *testing.T) {
 		{
 			name: "with hosts",
 			hosts: []scanner.HostInfo{
-				{ID: 0, IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
+				{IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
 			},
 		},
 		{
@@ -316,7 +311,7 @@ func TestUIModel_View(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			model := NewUIModel([]scanner.HostInfo{
-				{ID: 0, IP: "192.168.1.10", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test"},
+				{IP: "192.168.1.10", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test"},
 			}, nil, "")
 			model.mode = tt.mode
 			model.selectedIP = tt.selectedIP

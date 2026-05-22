@@ -10,7 +10,7 @@ import (
 
 func TestHandleNormalKeys_HelpScreen(t *testing.T) {
 	hosts := []scanner.HostInfo{
-		{ID: 0, IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
+		{IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
 	}
 	model := NewUIModel(hosts, nil, "")
 
@@ -26,7 +26,7 @@ func TestHandleNormalKeys_HelpScreen(t *testing.T) {
 
 func TestHandleHelpKeys_Exit(t *testing.T) {
 	hosts := []scanner.HostInfo{
-		{ID: 0, IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
+		{IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
 	}
 	model := NewUIModel(hosts, nil, "")
 	model.mode = modeHelp
@@ -62,7 +62,7 @@ func TestHandleHelpKeys_Exit(t *testing.T) {
 
 func TestHandleNormalKeys_SearchMode(t *testing.T) {
 	hosts := []scanner.HostInfo{
-		{ID: 0, IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
+		{IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
 	}
 	model := NewUIModel(hosts, nil, "")
 
@@ -78,7 +78,7 @@ func TestHandleNormalKeys_SearchMode(t *testing.T) {
 
 func TestHandleSearchKeys_Cancel(t *testing.T) {
 	hosts := []scanner.HostInfo{
-		{ID: 0, IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
+		{IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
 	}
 	model := NewUIModel(hosts, nil, "")
 	model.mode = modeSearch
@@ -99,8 +99,8 @@ func TestHandleSearchKeys_Cancel(t *testing.T) {
 
 func TestHandleSearchKeys_ApplyFilter(t *testing.T) {
 	hosts := []scanner.HostInfo{
-		{ID: 0, IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Apple", Hostname: "test.local"},
-		{ID: 1, IP: "192.168.1.2", MAC: "11:22:33:44:55:66", Vendor: "Samsung", Hostname: "phone.local"},
+		{IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Apple", Hostname: "test.local"},
+		{IP: "192.168.1.2", MAC: "11:22:33:44:55:66", Vendor: "Samsung", Hostname: "phone.local"},
 	}
 	model := NewUIModel(hosts, nil, "")
 	model.mode = modeSearch
@@ -127,8 +127,8 @@ func TestHandleSearchKeys_ApplyFilter(t *testing.T) {
 
 func TestHandleNormalKeys_SortColumns(t *testing.T) {
 	hosts := []scanner.HostInfo{
-		{ID: 0, IP: "192.168.1.10", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Vendor A", Hostname: "host1"},
-		{ID: 1, IP: "192.168.1.5", MAC: "11:22:33:44:55:66", Vendor: "Vendor B", Hostname: "host2"},
+		{IP: "192.168.1.10", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Vendor A", Hostname: "host1"},
+		{IP: "192.168.1.5", MAC: "11:22:33:44:55:66", Vendor: "Vendor B", Hostname: "host2"},
 	}
 	model := NewUIModel(hosts, nil, "")
 
@@ -163,7 +163,7 @@ func TestHandleNormalKeys_SortColumns(t *testing.T) {
 
 func TestHandleNormalKeys_SortToggle(t *testing.T) {
 	hosts := []scanner.HostInfo{
-		{ID: 0, IP: "192.168.1.10", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Vendor A", Hostname: "host1"},
+		{IP: "192.168.1.10", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Vendor A", Hostname: "host1"},
 	}
 	model := NewUIModel(hosts, nil, "")
 	model.sortColumn = 1
@@ -184,7 +184,7 @@ func TestHandleNormalKeys_SortToggle(t *testing.T) {
 
 func TestView_HelpMode(t *testing.T) {
 	hosts := []scanner.HostInfo{
-		{ID: 0, IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
+		{IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
 	}
 	model := NewUIModel(hosts, nil, "")
 	model.mode = modeHelp
@@ -202,7 +202,7 @@ func TestView_HelpMode(t *testing.T) {
 
 func TestView_SearchMode(t *testing.T) {
 	hosts := []scanner.HostInfo{
-		{ID: 0, IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
+		{IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
 	}
 	model := NewUIModel(hosts, nil, "")
 	model.mode = modeSearch
@@ -216,7 +216,7 @@ func TestView_SearchMode(t *testing.T) {
 
 func TestView_NormalModeWithFilter(t *testing.T) {
 	hosts := []scanner.HostInfo{
-		{ID: 0, IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Apple", Hostname: "test.local"},
+		{IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Apple", Hostname: "test.local"},
 	}
 	model := NewUIModel(hosts, nil, "")
 	model.searchActive = true

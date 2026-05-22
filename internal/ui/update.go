@@ -87,7 +87,6 @@ func (m UIModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		// Show success message
 		m.statusMessage = fmt.Sprintf("Rescan complete: %d host(s) found", len(m.allHosts))
-		m.statusExpiry = time.Now().Add(3 * time.Second)
 		return m, tea.Tick(3*time.Second, func(time.Time) tea.Msg {
 			return clearStatusMsg{}
 		})
@@ -96,7 +95,6 @@ func (m UIModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Handle scan error
 		m.isScanning = false
 		m.statusMessage = fmt.Sprintf("Rescan failed: %v", msg.err)
-		m.statusExpiry = time.Now().Add(5 * time.Second)
 		return m, tea.Tick(5*time.Second, func(time.Time) tea.Msg {
 			return clearStatusMsg{}
 		})
@@ -106,7 +104,6 @@ func (m UIModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.table.Focus()
 		if msg.err != nil {
 			m.statusMessage = fmt.Sprintf("SSH failed: %v", msg.err)
-			m.statusExpiry = time.Now().Add(5 * time.Second)
 			return m, tea.Tick(5*time.Second, func(time.Time) tea.Msg {
 				return clearStatusMsg{}
 			})
@@ -190,7 +187,6 @@ func (m UIModel) handleSearchKeys(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 
 		// Show status message
 		m.statusMessage = fmt.Sprintf("Found %d host(s)", len(m.filteredHosts))
-		m.statusExpiry = time.Now().Add(2 * time.Second)
 		return m, tea.Tick(2*time.Second, func(time.Time) tea.Msg {
 			return clearStatusMsg{}
 		})
@@ -286,7 +282,6 @@ func (m UIModel) handleNormalKeys(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			ip := selectedRow[0]
 			if err := clipboard.WriteAll(ip); err == nil {
 				m.statusMessage = "IP copied to clipboard!"
-				m.statusExpiry = time.Now().Add(2 * time.Second)
 				return m, tea.Tick(2*time.Second, func(time.Time) tea.Msg {
 					return clearStatusMsg{}
 				})
