@@ -9,7 +9,6 @@ import (
 	"github.com/atotto/clipboard"
 	tea "github.com/charmbracelet/bubbletea"
 
-	"nls/internal/progress"
 	"nls/internal/scanner"
 )
 
@@ -32,21 +31,12 @@ type sshDoneMsg struct {
 }
 
 // doRescan performs a network rescan in a goroutine and returns the result as a message.
-// Creates a new scanner with NoOp progress reporter to avoid terminal output conflicts with the TUI.
-// If a non-NmapScanner is passed (e.g., mock for testing), it uses that scanner directly.
 func doRescan(s scanner.Scanner, cidr string) tea.Cmd {
 	return func() tea.Msg {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
 		defer cancel()
 
-		// For NmapScanner, create a silent version to avoid progress output interfering with TUI
-		// For other scanners (e.g., mocks in tests), use the provided scanner
-		scannerToUse := s
-		if _, ok := s.(*scanner.NmapScanner); ok {
-			scannerToUse = scanner.NewNmapScanner(progress.NoOp{})
-		}
-
-		hosts, err := scannerToUse.Scan(ctx, cidr)
+		hosts, err := s.Scan(ctx, cidr)
 		if err != nil {
 			return rescanErrorMsg{err: err}
 		}
