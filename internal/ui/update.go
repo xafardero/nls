@@ -284,13 +284,15 @@ func (m UIModel) handleNormalKeys(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		selectedRow := m.table.SelectedRow()
 		if len(selectedRow) > 0 && selectedRow[0] != "No hosts found" {
 			ip := selectedRow[0]
-			if err := clipboard.WriteAll(ip); err == nil {
+			if err := clipboard.WriteAll(ip); err != nil {
+				m.statusMessage = fmt.Sprintf("Copy failed: %v", err)
+			} else {
 				m.statusMessage = "IP copied to clipboard!"
-				m.statusExpiry = time.Now().Add(2 * time.Second)
-				return m, tea.Tick(2*time.Second, func(time.Time) tea.Msg {
-					return clearStatusMsg{}
-				})
 			}
+			m.statusExpiry = time.Now().Add(2 * time.Second)
+			return m, tea.Tick(2*time.Second, func(time.Time) tea.Msg {
+				return clearStatusMsg{}
+			})
 		}
 
 	case "s":
