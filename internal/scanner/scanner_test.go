@@ -94,9 +94,9 @@ func TestExtractHostInfo(t *testing.T) {
 				{
 					ID:       0,
 					IP:       "192.168.1.100",
-					MAC:      "none",
-					Vendor:   "none",
-					Hostname: "none",
+					MAC:      "",
+					Vendor:   "",
+					Hostname: "",
 				},
 			},
 		},
@@ -112,10 +112,10 @@ func TestExtractHostInfo(t *testing.T) {
 			expected: []HostInfo{
 				{
 					ID:       0,
-					IP:       "none",
-					MAC:      "none",
-					Vendor:   "none",
-					Hostname: "none",
+					IP:       "",
+					MAC:      "",
+					Vendor:   "",
+					Hostname: "",
 				},
 			},
 		},
@@ -145,8 +145,8 @@ func TestExtractHostInfo(t *testing.T) {
 				{
 					ID:       0,
 					IP:       "192.168.1.50",
-					MAC:      "none",
-					Vendor:   "none",
+					MAC:      "",
+					Vendor:   "",
 					Hostname: "primary.local",
 				},
 			},

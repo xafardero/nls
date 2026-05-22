@@ -205,21 +205,21 @@ func TestCompareIPs(t *testing.T) {
 			expected: true, // 9 < 10 numerically (but "9" > "10" as strings)
 		},
 		{
-			name:     "none value sorts last",
-			ip1:      "none",
+			name:     "empty value sorts last",
+			ip1:      "",
 			ip2:      "192.168.1.1",
 			expected: false,
 		},
 		{
-			name:     "IP beats none",
+			name:     "IP beats empty",
 			ip1:      "192.168.1.1",
-			ip2:      "none",
+			ip2:      "",
 			expected: true,
 		},
 		{
-			name:     "both none",
-			ip1:      "none",
-			ip2:      "none",
+			name:     "both empty",
+			ip1:      "",
+			ip2:      "",
 			expected: false,
 		},
 	}

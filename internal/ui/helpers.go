@@ -87,8 +87,17 @@ func buildColumns(width int, weights ColumnWeights, sortCol int, ascending bool)
 	}
 }
 
+// orDash returns s if non-empty, otherwise returns "-".
+func orDash(s string) string {
+	if s == "" {
+		return "-"
+	}
+	return s
+}
+
 // buildRows converts a slice of HostInfo into table rows.
 // Returns a single "No hosts found" row if the input is empty.
+// Empty string fields are rendered as "-".
 func buildRows(hosts []scanner.HostInfo) []table.Row {
 	if len(hosts) == 0 {
 		return []table.Row{{"No hosts found", "-", "-", "-"}}
@@ -97,10 +106,10 @@ func buildRows(hosts []scanner.HostInfo) []table.Row {
 	rows := make([]table.Row, 0, len(hosts))
 	for _, h := range hosts {
 		rows = append(rows, table.Row{
-			h.IP,
-			h.MAC,
-			h.Vendor,
-			h.Hostname,
+			orDash(h.IP),
+			orDash(h.MAC),
+			orDash(h.Vendor),
+			orDash(h.Hostname),
 		})
 	}
 	return rows
@@ -165,15 +174,15 @@ func sortHosts(hosts []scanner.HostInfo, col int, ascending bool) []scanner.Host
 
 // compareIPs compares two IP addresses numerically.
 // Returns true if ip1 < ip2.
+// Empty strings sort last.
 func compareIPs(ip1, ip2 string) bool {
-	// Handle "none" sentinel value
-	if ip1 == "none" && ip2 == "none" {
+	if ip1 == "" && ip2 == "" {
 		return false
 	}
-	if ip1 == "none" {
-		return false // "none" sorts last
+	if ip1 == "" {
+		return false // empty sorts last
 	}
-	if ip2 == "none" {
+	if ip2 == "" {
 		return true
 	}
 

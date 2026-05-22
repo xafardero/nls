@@ -87,15 +87,15 @@ func (s *NmapScanner) Scan(ctx context.Context, target string) ([]HostInfo, erro
 
 // extractHostInfo converts nmap scan results into a slice of HostInfo structs.
 // It extracts the first IP address, MAC address with vendor, and hostname
-// from each host. Missing fields are set to "none".
+// from each host. Missing fields are set to empty string.
 // IDs are assigned sequentially starting from 0.
 func extractHostInfo(scanResult *nmap.Run) []HostInfo {
 	hosts := make([]HostInfo, 0, len(scanResult.Hosts))
 	for i, host := range scanResult.Hosts {
-		ip := "none"
-		mac := "none"
-		vendor := "none"
-		hostname := "none"
+		ip := ""
+		mac := ""
+		vendor := ""
+		hostname := ""
 
 		if len(host.Addresses) > 0 {
 			ip = host.Addresses[0].Addr

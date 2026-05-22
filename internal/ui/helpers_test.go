@@ -172,18 +172,18 @@ func TestBuildRows(t *testing.T) {
 			},
 		},
 		{
-			name: "hosts with 'none' values",
+			name: "hosts with empty values",
 			hosts: []scanner.HostInfo{
 				{
 					ID:       0,
 					IP:       "192.168.1.100",
-					MAC:      "none",
-					Vendor:   "none",
-					Hostname: "none",
+					MAC:      "",
+					Vendor:   "",
+					Hostname: "",
 				},
 			},
 			want: []table.Row{
-				{"192.168.1.100", "none", "none", "none"},
+				{"192.168.1.100", "-", "-", "-"},
 			},
 		},
 	}

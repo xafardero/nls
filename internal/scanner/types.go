@@ -5,8 +5,7 @@
 package scanner
 
 // HostInfo represents information about a discovered network host.
-// All string fields use "none" as a sentinel value when information
-// is not available.
+// String fields are empty when information is not available.
 type HostInfo struct {
 	ID       int
 	IP       string
