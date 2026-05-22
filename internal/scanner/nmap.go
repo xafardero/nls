@@ -67,6 +67,9 @@ func (s *NmapScanner) Scan(ctx context.Context, target string) ([]HostInfo, erro
 		resultCh <- result
 	}()
 
+	ticker := time.NewTicker(100 * time.Millisecond)
+	defer ticker.Stop()
+
 	for {
 		select {
 		case result := <-resultCh:
@@ -78,9 +81,8 @@ func (s *NmapScanner) Scan(ctx context.Context, target string) ([]HostInfo, erro
 		case <-ctx.Done():
 			s.progress.Finish()
 			return nil, ctx.Err()
-		default:
+		case <-ticker.C:
 			s.progress.Update()
-			time.Sleep(100 * time.Millisecond)
 		}
 	}
 }
