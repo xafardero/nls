@@ -9,10 +9,10 @@ import (
 
 func TestFilterHosts(t *testing.T) {
 	hosts := []scanner.HostInfo{
-		{ID: 0, IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Apple Inc.", Hostname: "macbook.local"},
-		{ID: 1, IP: "192.168.1.10", MAC: "11:22:33:44:55:66", Vendor: "Samsung", Hostname: "phone.local"},
-		{ID: 2, IP: "10.0.0.1", MAC: "AA:AA:AA:AA:AA:AA", Vendor: "Router Co", Hostname: "router"},
-		{ID: 3, IP: "192.168.1.20", MAC: "BB:BB:BB:BB:BB:BB", Vendor: "Apple Inc.", Hostname: "ipad"},
+		{IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Apple Inc.", Hostname: "macbook.local"},
+		{IP: "192.168.1.10", MAC: "11:22:33:44:55:66", Vendor: "Samsung", Hostname: "phone.local"},
+		{IP: "10.0.0.1", MAC: "AA:AA:AA:AA:AA:AA", Vendor: "Router Co", Hostname: "router"},
+		{IP: "192.168.1.20", MAC: "BB:BB:BB:BB:BB:BB", Vendor: "Apple Inc.", Hostname: "ipad"},
 	}
 
 	tests := []struct {
@@ -29,37 +29,37 @@ func TestFilterHosts(t *testing.T) {
 			name:  "filter by IP",
 			query: "10.0.0",
 			expected: []scanner.HostInfo{
-				{ID: 2, IP: "10.0.0.1", MAC: "AA:AA:AA:AA:AA:AA", Vendor: "Router Co", Hostname: "router"},
+				{IP: "10.0.0.1", MAC: "AA:AA:AA:AA:AA:AA", Vendor: "Router Co", Hostname: "router"},
 			},
 		},
 		{
 			name:  "filter by MAC",
 			query: "aa:bb:cc",
 			expected: []scanner.HostInfo{
-				{ID: 0, IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Apple Inc.", Hostname: "macbook.local"},
+				{IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Apple Inc.", Hostname: "macbook.local"},
 			},
 		},
 		{
 			name:  "filter by Vendor",
 			query: "apple",
 			expected: []scanner.HostInfo{
-				{ID: 0, IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Apple Inc.", Hostname: "macbook.local"},
-				{ID: 3, IP: "192.168.1.20", MAC: "BB:BB:BB:BB:BB:BB", Vendor: "Apple Inc.", Hostname: "ipad"},
+				{IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Apple Inc.", Hostname: "macbook.local"},
+				{IP: "192.168.1.20", MAC: "BB:BB:BB:BB:BB:BB", Vendor: "Apple Inc.", Hostname: "ipad"},
 			},
 		},
 		{
 			name:  "filter by Hostname",
 			query: "router",
 			expected: []scanner.HostInfo{
-				{ID: 2, IP: "10.0.0.1", MAC: "AA:AA:AA:AA:AA:AA", Vendor: "Router Co", Hostname: "router"},
+				{IP: "10.0.0.1", MAC: "AA:AA:AA:AA:AA:AA", Vendor: "Router Co", Hostname: "router"},
 			},
 		},
 		{
 			name:  "case insensitive search",
 			query: "APPLE",
 			expected: []scanner.HostInfo{
-				{ID: 0, IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Apple Inc.", Hostname: "macbook.local"},
-				{ID: 3, IP: "192.168.1.20", MAC: "BB:BB:BB:BB:BB:BB", Vendor: "Apple Inc.", Hostname: "ipad"},
+				{IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Apple Inc.", Hostname: "macbook.local"},
+				{IP: "192.168.1.20", MAC: "BB:BB:BB:BB:BB:BB", Vendor: "Apple Inc.", Hostname: "ipad"},
 			},
 		},
 		{
@@ -82,9 +82,9 @@ func TestFilterHosts(t *testing.T) {
 
 func TestSortHosts(t *testing.T) {
 	hosts := []scanner.HostInfo{
-		{ID: 0, IP: "192.168.1.10", MAC: "CC:CC:CC:CC:CC:CC", Vendor: "Zebra", Hostname: "device3"},
-		{ID: 1, IP: "192.168.1.5", MAC: "AA:AA:AA:AA:AA:AA", Vendor: "Apple", Hostname: "device1"},
-		{ID: 2, IP: "192.168.1.20", MAC: "BB:BB:BB:BB:BB:BB", Vendor: "Samsung", Hostname: "device2"},
+		{IP: "192.168.1.10", MAC: "CC:CC:CC:CC:CC:CC", Vendor: "Zebra", Hostname: "device3"},
+		{IP: "192.168.1.5", MAC: "AA:AA:AA:AA:AA:AA", Vendor: "Apple", Hostname: "device1"},
+		{IP: "192.168.1.20", MAC: "BB:BB:BB:BB:BB:BB", Vendor: "Samsung", Hostname: "device2"},
 	}
 
 	tests := []struct {
@@ -104,9 +104,9 @@ func TestSortHosts(t *testing.T) {
 			col:       1,
 			ascending: true,
 			expected: []scanner.HostInfo{
-				{ID: 1, IP: "192.168.1.5", MAC: "AA:AA:AA:AA:AA:AA", Vendor: "Apple", Hostname: "device1"},
-				{ID: 0, IP: "192.168.1.10", MAC: "CC:CC:CC:CC:CC:CC", Vendor: "Zebra", Hostname: "device3"},
-				{ID: 2, IP: "192.168.1.20", MAC: "BB:BB:BB:BB:BB:BB", Vendor: "Samsung", Hostname: "device2"},
+				{IP: "192.168.1.5", MAC: "AA:AA:AA:AA:AA:AA", Vendor: "Apple", Hostname: "device1"},
+				{IP: "192.168.1.10", MAC: "CC:CC:CC:CC:CC:CC", Vendor: "Zebra", Hostname: "device3"},
+				{IP: "192.168.1.20", MAC: "BB:BB:BB:BB:BB:BB", Vendor: "Samsung", Hostname: "device2"},
 			},
 		},
 		{
@@ -114,9 +114,9 @@ func TestSortHosts(t *testing.T) {
 			col:       1,
 			ascending: false,
 			expected: []scanner.HostInfo{
-				{ID: 2, IP: "192.168.1.20", MAC: "BB:BB:BB:BB:BB:BB", Vendor: "Samsung", Hostname: "device2"},
-				{ID: 0, IP: "192.168.1.10", MAC: "CC:CC:CC:CC:CC:CC", Vendor: "Zebra", Hostname: "device3"},
-				{ID: 1, IP: "192.168.1.5", MAC: "AA:AA:AA:AA:AA:AA", Vendor: "Apple", Hostname: "device1"},
+				{IP: "192.168.1.20", MAC: "BB:BB:BB:BB:BB:BB", Vendor: "Samsung", Hostname: "device2"},
+				{IP: "192.168.1.10", MAC: "CC:CC:CC:CC:CC:CC", Vendor: "Zebra", Hostname: "device3"},
+				{IP: "192.168.1.5", MAC: "AA:AA:AA:AA:AA:AA", Vendor: "Apple", Hostname: "device1"},
 			},
 		},
 		{
@@ -124,9 +124,9 @@ func TestSortHosts(t *testing.T) {
 			col:       2,
 			ascending: true,
 			expected: []scanner.HostInfo{
-				{ID: 1, IP: "192.168.1.5", MAC: "AA:AA:AA:AA:AA:AA", Vendor: "Apple", Hostname: "device1"},
-				{ID: 2, IP: "192.168.1.20", MAC: "BB:BB:BB:BB:BB:BB", Vendor: "Samsung", Hostname: "device2"},
-				{ID: 0, IP: "192.168.1.10", MAC: "CC:CC:CC:CC:CC:CC", Vendor: "Zebra", Hostname: "device3"},
+				{IP: "192.168.1.5", MAC: "AA:AA:AA:AA:AA:AA", Vendor: "Apple", Hostname: "device1"},
+				{IP: "192.168.1.20", MAC: "BB:BB:BB:BB:BB:BB", Vendor: "Samsung", Hostname: "device2"},
+				{IP: "192.168.1.10", MAC: "CC:CC:CC:CC:CC:CC", Vendor: "Zebra", Hostname: "device3"},
 			},
 		},
 		{
@@ -134,9 +134,9 @@ func TestSortHosts(t *testing.T) {
 			col:       3,
 			ascending: true,
 			expected: []scanner.HostInfo{
-				{ID: 1, IP: "192.168.1.5", MAC: "AA:AA:AA:AA:AA:AA", Vendor: "Apple", Hostname: "device1"},
-				{ID: 2, IP: "192.168.1.20", MAC: "BB:BB:BB:BB:BB:BB", Vendor: "Samsung", Hostname: "device2"},
-				{ID: 0, IP: "192.168.1.10", MAC: "CC:CC:CC:CC:CC:CC", Vendor: "Zebra", Hostname: "device3"},
+				{IP: "192.168.1.5", MAC: "AA:AA:AA:AA:AA:AA", Vendor: "Apple", Hostname: "device1"},
+				{IP: "192.168.1.20", MAC: "BB:BB:BB:BB:BB:BB", Vendor: "Samsung", Hostname: "device2"},
+				{IP: "192.168.1.10", MAC: "CC:CC:CC:CC:CC:CC", Vendor: "Zebra", Hostname: "device3"},
 			},
 		},
 		{
@@ -144,9 +144,9 @@ func TestSortHosts(t *testing.T) {
 			col:       4,
 			ascending: false,
 			expected: []scanner.HostInfo{
-				{ID: 0, IP: "192.168.1.10", MAC: "CC:CC:CC:CC:CC:CC", Vendor: "Zebra", Hostname: "device3"},
-				{ID: 2, IP: "192.168.1.20", MAC: "BB:BB:BB:BB:BB:BB", Vendor: "Samsung", Hostname: "device2"},
-				{ID: 1, IP: "192.168.1.5", MAC: "AA:AA:AA:AA:AA:AA", Vendor: "Apple", Hostname: "device1"},
+				{IP: "192.168.1.10", MAC: "CC:CC:CC:CC:CC:CC", Vendor: "Zebra", Hostname: "device3"},
+				{IP: "192.168.1.20", MAC: "BB:BB:BB:BB:BB:BB", Vendor: "Samsung", Hostname: "device2"},
+				{IP: "192.168.1.5", MAC: "AA:AA:AA:AA:AA:AA", Vendor: "Apple", Hostname: "device1"},
 			},
 		},
 	}
@@ -160,7 +160,7 @@ func TestSortHosts(t *testing.T) {
 			}
 
 			// Verify original is unchanged
-			if !reflect.DeepEqual(hosts[0], scanner.HostInfo{ID: 0, IP: "192.168.1.10", MAC: "CC:CC:CC:CC:CC:CC", Vendor: "Zebra", Hostname: "device3"}) {
+			if !reflect.DeepEqual(hosts[0], scanner.HostInfo{IP: "192.168.1.10", MAC: "CC:CC:CC:CC:CC:CC", Vendor: "Zebra", Hostname: "device3"}) {
 				t.Error("sortHosts modified original slice")
 			}
 		})
@@ -289,8 +289,8 @@ func TestBuildColumns_WithSortIndicator(t *testing.T) {
 
 func TestUpdateModel_RebuildTable(t *testing.T) {
 	hosts := []scanner.HostInfo{
-		{ID: 0, IP: "192.168.1.10", MAC: "AA:AA:AA:AA:AA:AA", Vendor: "Vendor A", Hostname: "host1"},
-		{ID: 1, IP: "192.168.1.5", MAC: "BB:BB:BB:BB:BB:BB", Vendor: "Vendor B", Hostname: "host2"},
+		{IP: "192.168.1.10", MAC: "AA:AA:AA:AA:AA:AA", Vendor: "Vendor A", Hostname: "host1"},
+		{IP: "192.168.1.5", MAC: "BB:BB:BB:BB:BB:BB", Vendor: "Vendor B", Hostname: "host2"},
 	}
 
 	model := NewUIModel(hosts, nil, "")

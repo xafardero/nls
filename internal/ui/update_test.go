@@ -13,7 +13,7 @@ import (
 func TestUpdate_ClearStatusMsg(t *testing.T) {
 	// Create model with a status message
 	hosts := []scanner.HostInfo{
-		{ID: 0, IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
+		{IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
 	}
 	model := NewUIModel(hosts, nil, "")
 	model.statusMessage = "Test message"
@@ -30,7 +30,7 @@ func TestUpdate_ClearStatusMsg(t *testing.T) {
 
 func TestUpdate_QuitKey(t *testing.T) {
 	hosts := []scanner.HostInfo{
-		{ID: 0, IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
+		{IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
 	}
 	model := NewUIModel(hosts, nil, "")
 
@@ -59,7 +59,7 @@ func TestUpdate_QuitKey(t *testing.T) {
 
 func TestUpdate_EscToggleFocus(t *testing.T) {
 	hosts := []scanner.HostInfo{
-		{ID: 0, IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
+		{IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
 	}
 	model := NewUIModel(hosts, nil, "")
 	initialFocus := model.table.Focused()
@@ -75,7 +75,7 @@ func TestUpdate_EscToggleFocus(t *testing.T) {
 
 func TestUpdate_SSHPrompt(t *testing.T) {
 	hosts := []scanner.HostInfo{
-		{ID: 0, IP: "192.168.1.10", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
+		{IP: "192.168.1.10", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
 	}
 	model := NewUIModel(hosts, nil, "")
 
@@ -94,7 +94,7 @@ func TestUpdate_SSHPrompt(t *testing.T) {
 
 func TestUpdate_SSHPromptEscape(t *testing.T) {
 	hosts := []scanner.HostInfo{
-		{ID: 0, IP: "192.168.1.10", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
+		{IP: "192.168.1.10", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
 	}
 	model := NewUIModel(hosts, nil, "")
 	model.mode = modeSSHPrompt
@@ -116,8 +116,8 @@ func TestUpdate_SSHPromptEscape(t *testing.T) {
 
 func TestHandleNormalKeys_CopyIP_ValidHost(t *testing.T) {
 	hosts := []scanner.HostInfo{
-		{ID: 0, IP: "192.168.1.100", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
-		{ID: 1, IP: "192.168.1.101", MAC: "11:22:33:44:55:66", Vendor: "Test2", Hostname: "test2.local"},
+		{IP: "192.168.1.100", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
+		{IP: "192.168.1.101", MAC: "11:22:33:44:55:66", Vendor: "Test2", Hostname: "test2.local"},
 	}
 	model := NewUIModel(hosts, nil, "")
 
@@ -174,7 +174,7 @@ func TestHandleNormalKeys_SSHWithNoHostsFound(t *testing.T) {
 
 func TestUpdate_SSHDoneMsg(t *testing.T) {
 	hosts := []scanner.HostInfo{
-		{ID: 0, IP: "192.168.1.10", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
+		{IP: "192.168.1.10", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
 	}
 
 	tests := []struct {
@@ -233,12 +233,12 @@ func (m *mockScanner) Scan(ctx context.Context, target string) ([]scanner.HostIn
 
 func TestUpdate_RescanTrigger(t *testing.T) {
 	initialHosts := []scanner.HostInfo{
-		{ID: 0, IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Initial", Hostname: "test1"},
+		{IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Initial", Hostname: "test1"},
 	}
 
 	mockScan := &mockScanner{
 		hosts: []scanner.HostInfo{
-			{ID: 0, IP: "192.168.1.2", MAC: "11:22:33:44:55:66", Vendor: "Rescanned", Hostname: "test2"},
+			{IP: "192.168.1.2", MAC: "11:22:33:44:55:66", Vendor: "Rescanned", Hostname: "test2"},
 		},
 	}
 
@@ -260,12 +260,12 @@ func TestUpdate_RescanTrigger(t *testing.T) {
 
 func TestUpdate_RescanComplete(t *testing.T) {
 	initialHosts := []scanner.HostInfo{
-		{ID: 0, IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Initial", Hostname: "test1"},
+		{IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Initial", Hostname: "test1"},
 	}
 
 	newHosts := []scanner.HostInfo{
-		{ID: 0, IP: "192.168.1.2", MAC: "11:22:33:44:55:66", Vendor: "Rescanned", Hostname: "test2"},
-		{ID: 1, IP: "192.168.1.3", MAC: "AA:AA:AA:AA:AA:AA", Vendor: "New", Hostname: "test3"},
+		{IP: "192.168.1.2", MAC: "11:22:33:44:55:66", Vendor: "Rescanned", Hostname: "test2"},
+		{IP: "192.168.1.3", MAC: "AA:AA:AA:AA:AA:AA", Vendor: "New", Hostname: "test3"},
 	}
 
 	model := NewUIModel(initialHosts, nil, "192.168.1.0/24")
@@ -299,7 +299,7 @@ func TestUpdate_RescanComplete(t *testing.T) {
 
 func TestUpdate_RescanError(t *testing.T) {
 	hosts := []scanner.HostInfo{
-		{ID: 0, IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test"},
+		{IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test"},
 	}
 
 	model := NewUIModel(hosts, nil, "192.168.1.0/24")
@@ -326,7 +326,7 @@ func TestUpdate_RescanError(t *testing.T) {
 
 func TestUpdate_IgnoreKeysWhileScanning(t *testing.T) {
 	hosts := []scanner.HostInfo{
-		{ID: 0, IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test"},
+		{IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test"},
 	}
 
 	model := NewUIModel(hosts, nil, "192.168.1.0/24")
@@ -351,12 +351,12 @@ func TestUpdate_IgnoreKeysWhileScanning(t *testing.T) {
 
 func TestUpdate_RescanWithActiveFilter(t *testing.T) {
 	initialHosts := []scanner.HostInfo{
-		{ID: 0, IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Initial", Hostname: "test1"},
+		{IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Initial", Hostname: "test1"},
 	}
 
 	newHosts := []scanner.HostInfo{
-		{ID: 0, IP: "192.168.1.2", MAC: "11:22:33:44:55:66", Vendor: "Apple", Hostname: "test2"},
-		{ID: 1, IP: "192.168.1.3", MAC: "AA:AA:AA:AA:AA:AA", Vendor: "Samsung", Hostname: "test3"},
+		{IP: "192.168.1.2", MAC: "11:22:33:44:55:66", Vendor: "Apple", Hostname: "test2"},
+		{IP: "192.168.1.3", MAC: "AA:AA:AA:AA:AA:AA", Vendor: "Samsung", Hostname: "test3"},
 	}
 
 	model := NewUIModel(initialHosts, nil, "192.168.1.0/24")
@@ -382,7 +382,7 @@ func TestUpdate_RescanWithActiveFilter(t *testing.T) {
 
 func TestUpdate_WindowResize(t *testing.T) {
 	hosts := []scanner.HostInfo{
-		{ID: 0, IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
+		{IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
 	}
 	model := NewUIModel(hosts, nil, "")
 
