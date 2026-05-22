@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
+	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
 
@@ -35,6 +36,10 @@ func New(config *Config, s scanner.Scanner) *App {
 func (a *App) Run(ctx context.Context) error {
 	if err := a.config.Validate(); err != nil {
 		return fmt.Errorf("invalid configuration: %w", err)
+	}
+
+	if os.Getuid() != 0 {
+		return fmt.Errorf("nls requires root privileges: re-run with sudo")
 	}
 
 	hosts, err := a.scanner.Scan(ctx, a.config.CIDR)
