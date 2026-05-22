@@ -8,7 +8,6 @@ package scanner
 // All string fields use "none" as a sentinel value when information
 // is not available.
 type HostInfo struct {
-	ID       int
 	IP       string
 	MAC      string
 	Vendor   string
