@@ -4,8 +4,6 @@
 package ui
 
 import (
-	"time"
-
 	"github.com/charmbracelet/bubbles/table"
 	"github.com/charmbracelet/bubbles/textinput"
 
@@ -81,7 +79,6 @@ type UIModel struct {
 	// View state
 	mode          viewMode
 	statusMessage string
-	statusExpiry  time.Time
 
 	// SSH state
 	selectedIP string

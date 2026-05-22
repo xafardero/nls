@@ -3,7 +3,6 @@ package ui
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/charmbracelet/lipgloss"
 )
@@ -96,7 +95,7 @@ func (m UIModel) renderNormalView() string {
 	}
 
 	// Show status message if active
-	if m.statusMessage != "" && time.Now().Before(m.statusExpiry) {
+	if m.statusMessage != "" {
 		footer = m.statusMessage + "  " + footer
 	}
 

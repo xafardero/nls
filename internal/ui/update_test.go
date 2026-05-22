@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"testing"
-	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
 
@@ -18,7 +17,6 @@ func TestUpdate_ClearStatusMsg(t *testing.T) {
 	}
 	model := NewUIModel(hosts, nil, "")
 	model.statusMessage = "Test message"
-	model.statusExpiry = time.Now().Add(5 * time.Second)
 
 	// Send clearStatusMsg
 	msg := clearStatusMsg{}
@@ -135,10 +133,7 @@ func TestHandleNormalKeys_CopyIP_ValidHost(t *testing.T) {
 		// This is acceptable if clipboard.WriteAll fails in test environment
 		t.Log("clipboard write may have failed in test environment, which is expected")
 	} else if m.statusMessage == "IP copied to clipboard!" {
-		// Verify status message was set correctly
-		if time.Now().After(m.statusExpiry) {
-			t.Error("statusExpiry should be in the future")
-		}
+		// Verify status message was set correctly and tick command returned
 		if cmd == nil {
 			t.Error("expected tick command to be returned for clearing status")
 		}
@@ -220,29 +215,6 @@ func TestUpdate_SSHDoneMsg(t *testing.T) {
 				t.Error("statusMessage is empty; want error message")
 			}
 		})
-	}
-}
-
-func TestStatusMessage_Expiry(t *testing.T) {
-	hosts := []scanner.HostInfo{
-		{IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
-	}
-	model := NewUIModel(hosts, nil, "")
-
-	// Set status message with past expiry
-	model.statusMessage = "Expired message"
-	model.statusExpiry = time.Now().Add(-1 * time.Second)
-
-	if time.Now().Before(model.statusExpiry) {
-		t.Error("statusExpiry should be in the past")
-	}
-
-	// Set status message with future expiry
-	model.statusMessage = "Current message"
-	model.statusExpiry = time.Now().Add(3 * time.Second)
-
-	if !time.Now().Before(model.statusExpiry) {
-		t.Error("statusExpiry should be in the future")
 	}
 }
 
