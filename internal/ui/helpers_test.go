@@ -238,7 +238,7 @@ func TestPromptStyle(t *testing.T) {
 	}
 }
 
-func TestNewUIModel(t *testing.T) {
+func TestNewModel(t *testing.T) {
 	tests := []struct {
 		name  string
 		hosts []scanner.HostInfo
@@ -257,7 +257,7 @@ func TestNewUIModel(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			model := NewUIModel(tt.hosts, nil, "")
+			model := NewModel(tt.hosts, nil, "")
 
 			if model.table.Cursor() < 0 {
 				t.Error("table cursor not initialized")
@@ -282,8 +282,8 @@ func TestNewUIModel(t *testing.T) {
 	}
 }
 
-func TestUIModel_Init(t *testing.T) {
-	model := NewUIModel([]scanner.HostInfo{}, nil, "")
+func TestModel_Init(t *testing.T) {
+	model := NewModel([]scanner.HostInfo{}, nil, "")
 	cmd := model.Init()
 
 	if cmd == nil {
@@ -291,7 +291,7 @@ func TestUIModel_Init(t *testing.T) {
 	}
 }
 
-func TestUIModel_View(t *testing.T) {
+func TestModel_View(t *testing.T) {
 	tests := []struct {
 		name       string
 		mode       viewMode
@@ -310,7 +310,7 @@ func TestUIModel_View(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			model := NewUIModel([]scanner.HostInfo{
+			model := NewModel([]scanner.HostInfo{
 				{IP: "192.168.1.10", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test"},
 			}, nil, "")
 			model.mode = tt.mode

@@ -9,7 +9,7 @@ import (
 
 // View renders the UI based on current state.
 // Shows different views based on the current mode.
-func (m UIModel) View() string {
+func (m Model) View() string {
 	switch m.mode {
 	case modeHelp:
 		return m.renderHelpView()
@@ -23,7 +23,7 @@ func (m UIModel) View() string {
 }
 
 // renderHelpView renders the help screen.
-func (m UIModel) renderHelpView() string {
+func (m Model) renderHelpView() string {
 	helpBox := helpStyle.Render(helpText)
 
 	overlay := lipgloss.Place(
@@ -39,7 +39,7 @@ func (m UIModel) renderHelpView() string {
 }
 
 // renderSearchView renders the search input overlay.
-func (m UIModel) renderSearchView() string {
+func (m Model) renderSearchView() string {
 	prompt := fmt.Sprintf("Search/Filter Hosts\n\n%s\n\n[enter: apply filter] [esc: cancel]",
 		m.searchInput.View(),
 	)
@@ -58,7 +58,7 @@ func (m UIModel) renderSearchView() string {
 }
 
 // renderSSHPromptView renders the SSH prompt overlay.
-func (m UIModel) renderSSHPromptView() string {
+func (m Model) renderSSHPromptView() string {
 	prompt := fmt.Sprintf("SSH to %s\n\n%s\n\n[enter: connect] [esc: cancel]",
 		m.selectedIP,
 		m.usernameInput.View(),
@@ -78,7 +78,7 @@ func (m UIModel) renderSSHPromptView() string {
 }
 
 // renderNormalView renders the standard table view with footer.
-func (m UIModel) renderNormalView() string {
+func (m Model) renderNormalView() string {
 	baseView := baseStyle.Render(m.table.View())
 
 	// Build footer with all shortcuts

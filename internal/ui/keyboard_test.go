@@ -12,12 +12,12 @@ func TestHandleNormalKeys_HelpScreen(t *testing.T) {
 	hosts := []scanner.HostInfo{
 		{IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
 	}
-	model := NewUIModel(hosts, nil, "")
+	model := NewModel(hosts, nil, "")
 
 	// Press ? to show help
 	msg := tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune("?")}
 	updatedModel, _ := model.Update(msg)
-	m := updatedModel.(UIModel)
+	m := updatedModel.(Model)
 
 	if m.mode != modeHelp {
 		t.Error("expected mode to be modeHelp after '?' key")
@@ -28,7 +28,7 @@ func TestHandleHelpKeys_Exit(t *testing.T) {
 	hosts := []scanner.HostInfo{
 		{IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
 	}
-	model := NewUIModel(hosts, nil, "")
+	model := NewModel(hosts, nil, "")
 	model.mode = modeHelp
 
 	tests := []struct {
@@ -51,7 +51,7 @@ func TestHandleHelpKeys_Exit(t *testing.T) {
 			}
 
 			updatedModel, _ := m.Update(msg)
-			result := updatedModel.(UIModel)
+			result := updatedModel.(Model)
 
 			if result.mode != modeNormal {
 				t.Errorf("expected mode to be modeNormal after %s, got %v", tt.key, result.mode)
@@ -64,12 +64,12 @@ func TestHandleNormalKeys_SearchMode(t *testing.T) {
 	hosts := []scanner.HostInfo{
 		{IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
 	}
-	model := NewUIModel(hosts, nil, "")
+	model := NewModel(hosts, nil, "")
 
 	// Press / to activate search
 	msg := tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune("/")}
 	updatedModel, _ := model.Update(msg)
-	m := updatedModel.(UIModel)
+	m := updatedModel.(Model)
 
 	if m.mode != modeSearch {
 		t.Error("expected mode to be modeSearch after '/' key")
@@ -80,14 +80,14 @@ func TestHandleSearchKeys_Cancel(t *testing.T) {
 	hosts := []scanner.HostInfo{
 		{IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
 	}
-	model := NewUIModel(hosts, nil, "")
+	model := NewModel(hosts, nil, "")
 	model.mode = modeSearch
 	model.searchInput.SetValue("test query")
 
 	// Press esc to cancel
 	msg := tea.KeyMsg{Type: tea.KeyEsc}
 	updatedModel, _ := model.Update(msg)
-	m := updatedModel.(UIModel)
+	m := updatedModel.(Model)
 
 	if m.mode != modeNormal {
 		t.Error("expected mode to be modeNormal after esc in search mode")
@@ -102,14 +102,14 @@ func TestHandleSearchKeys_ApplyFilter(t *testing.T) {
 		{IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Apple", Hostname: "test.local"},
 		{IP: "192.168.1.2", MAC: "11:22:33:44:55:66", Vendor: "Samsung", Hostname: "phone.local"},
 	}
-	model := NewUIModel(hosts, nil, "")
+	model := NewModel(hosts, nil, "")
 	model.mode = modeSearch
 	model.searchInput.SetValue("apple")
 
 	// Press enter to apply filter
 	msg := tea.KeyMsg{Type: tea.KeyEnter}
 	updatedModel, _ := model.Update(msg)
-	m := updatedModel.(UIModel)
+	m := updatedModel.(Model)
 
 	if m.mode != modeNormal {
 		t.Error("expected mode to be modeNormal after enter in search mode")
@@ -130,7 +130,7 @@ func TestHandleNormalKeys_SortColumns(t *testing.T) {
 		{IP: "192.168.1.10", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Vendor A", Hostname: "host1"},
 		{IP: "192.168.1.5", MAC: "11:22:33:44:55:66", Vendor: "Vendor B", Hostname: "host2"},
 	}
-	model := NewUIModel(hosts, nil, "")
+	model := NewModel(hosts, nil, "")
 
 	tests := []struct {
 		name            string
@@ -149,7 +149,7 @@ func TestHandleNormalKeys_SortColumns(t *testing.T) {
 			m := model
 			msg := tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune(tt.key)}
 			updatedModel, _ := m.Update(msg)
-			result := updatedModel.(UIModel)
+			result := updatedModel.(Model)
 
 			if result.sortColumn != tt.expectedSortCol {
 				t.Errorf("sortColumn = %d; want %d", result.sortColumn, tt.expectedSortCol)
@@ -165,14 +165,14 @@ func TestHandleNormalKeys_SortToggle(t *testing.T) {
 	hosts := []scanner.HostInfo{
 		{IP: "192.168.1.10", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Vendor A", Hostname: "host1"},
 	}
-	model := NewUIModel(hosts, nil, "")
+	model := NewModel(hosts, nil, "")
 	model.sortColumn = 1
 	model.sortAscending = true
 
 	// Press 1 again to toggle sort direction
 	msg := tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune("1")}
 	updatedModel, _ := model.Update(msg)
-	m := updatedModel.(UIModel)
+	m := updatedModel.(Model)
 
 	if m.sortColumn != 1 {
 		t.Errorf("sortColumn = %d; want 1", m.sortColumn)
@@ -186,7 +186,7 @@ func TestView_HelpMode(t *testing.T) {
 	hosts := []scanner.HostInfo{
 		{IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
 	}
-	model := NewUIModel(hosts, nil, "")
+	model := NewModel(hosts, nil, "")
 	model.mode = modeHelp
 
 	view := model.View()
@@ -204,7 +204,7 @@ func TestView_SearchMode(t *testing.T) {
 	hosts := []scanner.HostInfo{
 		{IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Test", Hostname: "test.local"},
 	}
-	model := NewUIModel(hosts, nil, "")
+	model := NewModel(hosts, nil, "")
 	model.mode = modeSearch
 
 	view := model.View()
@@ -218,7 +218,7 @@ func TestView_NormalModeWithFilter(t *testing.T) {
 	hosts := []scanner.HostInfo{
 		{IP: "192.168.1.1", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Apple", Hostname: "test.local"},
 	}
-	model := NewUIModel(hosts, nil, "")
+	model := NewModel(hosts, nil, "")
 	model.searchActive = true
 	model.searchQuery = "apple"
 

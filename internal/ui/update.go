@@ -56,13 +56,13 @@ func doRescan(s scanner.Scanner, cidr string) tea.Cmd {
 
 // Init initializes the UI model.
 // Requests initial window size to ensure proper layout.
-func (m UIModel) Init() tea.Cmd {
+func (m Model) Init() tea.Cmd {
 	return tea.WindowSize()
 }
 
 // Update handles keyboard input and updates the model state.
 // Implements the Bubbletea Update interface for event handling.
-func (m UIModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
@@ -144,7 +144,7 @@ func (m UIModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 // handleHelpKeys handles keyboard input when help screen is shown.
-func (m UIModel) handleHelpKeys(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+func (m Model) handleHelpKeys(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	switch msg.String() {
 	case "esc", "q", "?":
 		m.mode = modeNormal
@@ -155,7 +155,7 @@ func (m UIModel) handleHelpKeys(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 }
 
 // handleSearchKeys handles keyboard input when search mode is active.
-func (m UIModel) handleSearchKeys(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+func (m Model) handleSearchKeys(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	switch msg.String() {
 	case "esc":
 		// Cancel search, return to normal mode
@@ -199,7 +199,7 @@ func (m UIModel) handleSearchKeys(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 }
 
 // handleSSHPromptKeys handles keyboard input when SSH prompt is shown.
-func (m UIModel) handleSSHPromptKeys(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+func (m Model) handleSSHPromptKeys(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	switch msg.String() {
 	case "esc":
 		m.mode = modeNormal
@@ -227,7 +227,7 @@ func (m UIModel) handleSSHPromptKeys(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 }
 
 // handleNormalKeys handles keyboard input in normal table view mode.
-func (m UIModel) handleNormalKeys(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+func (m Model) handleNormalKeys(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	switch msg.String() {
 	case "?":
 		// Show help screen
@@ -307,7 +307,7 @@ func (m UIModel) handleNormalKeys(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 
 // rebuildTable rebuilds the table with current filter and sort settings.
 // Uses stored terminal dimensions for responsive column sizing.
-func (m UIModel) rebuildTable() UIModel {
+func (m Model) rebuildTable() Model {
 	// Apply sort to filtered hosts
 	hostsToDisplay := m.filteredHosts
 	if m.sortColumn > 0 {

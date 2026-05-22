@@ -62,11 +62,11 @@ const helpText = `Keyboard Shortcuts:
 
 Press esc or q to close this help screen.`
 
-// UIModel represents the state of the terminal UI.
+// Model represents the state of the terminal UI.
 // It manages the display table, multiple view modes, search/filter, sorting,
-// and user input. UIModel requires initialization via NewUIModel and cannot
+// and user input. Model requires initialization via NewModel and cannot
 // be used with its zero value due to dependencies on Bubbletea components.
-type UIModel struct {
+type Model struct {
 	// Display components
 	table         table.Model
 	usernameInput textinput.Model
@@ -101,11 +101,11 @@ type UIModel struct {
 	isScanning bool
 }
 
-// NewUIModel creates a new UI model. UIModel requires initialization
+// NewModel creates a new UI model. Model requires initialization
 // and cannot be used with its zero value due to dependencies on
 // the Bubbletea table component.
 // The scanner and cidr parameters enable rescan functionality.
-func NewUIModel(hosts []scanner.HostInfo, s scanner.Scanner, cidr string) UIModel {
+func NewModel(hosts []scanner.HostInfo, s scanner.Scanner, cidr string) Model {
 	width, height := getTerminalSize()
 	tableHeight := height
 	if tableHeight < MinTableHeight {
@@ -137,7 +137,7 @@ func NewUIModel(hosts []scanner.HostInfo, s scanner.Scanner, cidr string) UIMode
 	si.CharLimit = 50
 	si.Width = SearchInputWidth
 
-	return UIModel{
+	return Model{
 		table:         t,
 		allHosts:      hosts,
 		filteredHosts: hosts, // Initially, no filter applied
