@@ -2,7 +2,6 @@
 
 [![Test](https://github.com/xafardero/nls/actions/workflows/test.yml/badge.svg)](https://github.com/xafardero/nls/actions/workflows/test.yml)
 [![Lint](https://github.com/xafardero/nls/actions/workflows/lint.yml/badge.svg)](https://github.com/xafardero/nls/actions/workflows/lint.yml)
-[![Go Report Card](https://goreportcard.com/badge/github.com/xafardero/nls)](https://goreportcard.com/report/github.com/xafardero/nls)
 [![Release](https://img.shields.io/github/v/release/xafardero/nls)](https://github.com/xafardero/nls/releases)
 [![License: MIT](https://img.shields.io/github/license/xafardero/nls)](LICENSE)
 
