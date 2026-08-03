@@ -9,46 +9,7 @@ nls is a terminal-based network scanner that lists hosts in a network using nmap
 
 ## Build and Run Commands
 
-### Build
-```bash
-go build -o nls ./cmd/nls
-```
-
-### Run
-Requires root privileges for nmap ping scan:
-```bash
-sudo ./nls [CIDR]
-# Example: sudo ./nls 10.0.0.0/24
-# Default: 192.168.1.0/24 if no CIDR provided
-```
-
-### Cross-platform Builds
-The project supports Linux (amd64/arm64) and macOS (arm64):
-```bash
-GOOS=linux GOARCH=amd64 go build -o nls-linux-amd64 ./cmd/nls
-GOOS=linux GOARCH=arm64 go build -o nls-linux-arm64 ./cmd/nls
-GOOS=darwin GOARCH=arm64 go build -o nls-macos-arm64 ./cmd/nls
-```
-
-### Testing
-The project follows TDD methodology with table-driven tests:
-```bash
-# Run all tests
-go test ./...
-
-# Run with verbose output
-go test -v ./...
-
-# Run with coverage
-go test -cover ./...
-
-# Generate coverage report
-go test -coverprofile=coverage.out ./...
-go tool cover -html=coverage.out
-
-# Run with race detector
-go test -race ./...
-```
+See [README.md](README.md) for build, run, and usage commands. See `.github/workflows/release.yml` for the cross-platform build matrix and `.github/workflows/test.yml` for the CI test invocation.
 
 ## Architecture
 
