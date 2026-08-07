@@ -72,6 +72,26 @@ chmod +x nls-linux-amd64
 
 ---
 
+## Step 5 — Update the Homebrew tap
+
+The [`xafardero/homebrew-tap`](https://github.com/xafardero/homebrew-tap) repo hosts the `nls` Homebrew formula (`Formula/nls.rb`), which builds `nls` from source for a pinned tag. It does not update itself, so after the GitHub Release is live, bump it manually:
+
+1. Compute the new tag's source tarball checksum:
+   ```bash
+   curl -sL https://github.com/xafardero/nls/archive/refs/tags/v0.1.5.tar.gz | shasum -a 256
+   ```
+2. In a clone of `xafardero/homebrew-tap`, update `Formula/nls.rb`:
+   - `url` → the new tag's tarball URL
+   - `sha256` → the checksum from step 1
+3. Validate locally, then commit and push:
+   ```bash
+   brew install --build-from-source xafardero/tap/nls
+   brew test nls
+   brew audit --strict xafardero/tap/nls
+   ```
+
+---
+
 ## Troubleshooting
 
 **The workflow did not trigger.**

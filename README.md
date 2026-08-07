@@ -11,6 +11,13 @@ Unlike raw `nmap`/`arp-scan` output, `nls` gives you a live, sortable, filterabl
 
 ![Demo](img/demo.gif)
 
+## Homebrew
+```sh
+brew tap xafardero/tap
+brew install nls
+```
+This builds `nls` from source and pulls in `nmap` automatically as a dependency.
+
 ## Download
 Download the latest release for Linux (amd64/arm64) or macOS (arm64) from the [Releases page](https://github.com/xafardero/nls/releases).
 
