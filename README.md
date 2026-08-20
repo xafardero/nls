@@ -12,7 +12,18 @@ Unlike raw `nmap`/`arp-scan` output, `nls` gives you a live, sortable, filterabl
 ![Demo](img/demo.gif)
 
 ## Download
-Download the latest release for Linux (amd64/arm64) or macOS (arm64) from the [Releases page](https://github.com/xafardero/nls/releases).
+Install the latest release for Linux (amd64/arm64) or macOS (arm64) with:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/xafardero/nls/main/install.sh | sh
+```
+
+This always fetches the newest release and installs it to `/usr/local/bin/nls` (prompting for `sudo` if needed). Set `NLS_INSTALL_DIR` to install elsewhere.
+
+Now you can run `nls` from anywhere.
+
+### Manual download
+You can also grab a binary directly from the [Releases page](https://github.com/xafardero/nls/releases) and install it yourself:
 
 ```sh
 # Replace {OS}-{ARCH} with your platform (e.g., linux-amd64, macos-arm64)
@@ -20,8 +31,6 @@ curl -L https://github.com/xafardero/nls/releases/download/v0.2.0/nls-linux-amd6
 chmod +x nls
 sudo mv nls /usr/local/bin/
 ```
-
-Now you can run `nls` from anywhere.
 
 ## Build from source
 ```sh
