@@ -20,6 +20,8 @@ curl -fsSL https://raw.githubusercontent.com/xafardero/nls/main/install.sh | sh
 
 This always fetches the newest release and installs it to `/usr/local/bin/nls` (prompting for `sudo` if needed). Set `NLS_INSTALL_DIR` to install elsewhere.
 
+`nls` needs [nmap](https://nmap.org/download) installed to scan. The install script warns you and prints the install command if it is missing.
+
 Now you can run `nls` from anywhere.
 
 ### Manual download
