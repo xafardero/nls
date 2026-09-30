@@ -2,6 +2,7 @@ package scanner
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -10,6 +11,8 @@ import (
 
 	"nls/internal/progress"
 )
+
+var errNmapMissing = errors.New("nmap is not installed or not in PATH; install it (e.g. 'sudo apt install nmap' or 'brew install nmap') and run nls again")
 
 // NmapScanner implements the Scanner interface using nmap for network discovery.
 // It performs ping scans to detect active hosts and extract their information.
@@ -52,7 +55,7 @@ func (s *NmapScanner) Scan(ctx context.Context, target string) ([]HostInfo, erro
 			nmap.WithPingScan(),
 		)
 		if err != nil {
-			errCh <- fmt.Errorf("create scanner: %w", err)
+			errCh <- createScannerError(err)
 			return
 		}
 
@@ -83,6 +86,13 @@ func (s *NmapScanner) Scan(ctx context.Context, target string) ([]HostInfo, erro
 			time.Sleep(100 * time.Millisecond)
 		}
 	}
+}
+
+func createScannerError(err error) error {
+	if errors.Is(err, nmap.ErrNmapNotInstalled) {
+		return errNmapMissing
+	}
+	return fmt.Errorf("create scanner: %w", err)
 }
 
 // extractHostInfo converts nmap scan results into a slice of HostInfo structs.

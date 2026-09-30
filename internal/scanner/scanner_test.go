@@ -1,6 +1,8 @@
 package scanner
 
 import (
+	"errors"
+	"fmt"
 	"reflect"
 	"testing"
 
@@ -153,6 +155,42 @@ func TestExtractHostInfo(t *testing.T) {
 
 			if !reflect.DeepEqual(got, tt.expected) {
 				t.Errorf("extractHostInfo() mismatch:\ngot:  %+v\nwant: %+v", got, tt.expected)
+			}
+		})
+	}
+}
+
+func TestCreateScannerError(t *testing.T) {
+	otherErr := errors.New("boom")
+
+	tests := []struct {
+		name  string
+		input error
+		want  error
+	}{
+		{
+			name:  "missing nmap binary",
+			input: nmap.ErrNmapNotInstalled,
+			want:  errNmapMissing,
+		},
+		{
+			name:  "wrapped missing nmap binary",
+			input: fmt.Errorf("lookup: %w", nmap.ErrNmapNotInstalled),
+			want:  errNmapMissing,
+		},
+		{
+			name:  "other error keeps its cause",
+			input: otherErr,
+			want:  otherErr,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := createScannerError(tt.input)
+
+			if !errors.Is(got, tt.want) {
+				t.Errorf("createScannerError() = %v; want %v", got, tt.want)
 			}
 		})
 	}
