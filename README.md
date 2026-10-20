@@ -1,4 +1,11 @@
-# nls — Find devices on your LAN and act on them from the terminal
+# nls
+
+[![Test](https://github.com/xafardero/nls/actions/workflows/test.yml/badge.svg)](https://github.com/xafardero/nls/actions/workflows/test.yml)
+[![Lint](https://github.com/xafardero/nls/actions/workflows/lint.yml/badge.svg)](https://github.com/xafardero/nls/actions/workflows/lint.yml)
+[![Release](https://img.shields.io/github/v/release/xafardero/nls)](https://github.com/xafardero/nls/releases)
+[![License: MIT](https://img.shields.io/github/license/xafardero/nls)](LICENSE)
+
+Find devices on your LAN and act on them from the terminal.
 
 `nls` turns an nmap discovery scan into a searchable table. Find a device, copy its IP, or SSH into it without parsing scan output.
 
@@ -7,11 +14,6 @@ sudo nls 192.168.1.0/24
 ```
 
 ![Demo](img/demo.gif)
-
-[![Test](https://github.com/xafardero/nls/actions/workflows/test.yml/badge.svg)](https://github.com/xafardero/nls/actions/workflows/test.yml)
-[![Lint](https://github.com/xafardero/nls/actions/workflows/lint.yml/badge.svg)](https://github.com/xafardero/nls/actions/workflows/lint.yml)
-[![Release](https://img.shields.io/github/v/release/xafardero/nls)](https://github.com/xafardero/nls/releases)
-[![License: MIT](https://img.shields.io/github/license/xafardero/nls)](LICENSE)
 
 ## Download
 Install the latest release for Linux (amd64/arm64) or macOS (arm64) with:
