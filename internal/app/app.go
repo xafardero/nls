@@ -45,7 +45,7 @@ func (a *App) Run(ctx context.Context) error {
 
 	rescanScanner := scanner.NewNmapScanner(progress.NoOp{})
 	model := ui.NewUIModel(hosts, rescanScanner, a.config.CIDR)
-	if _, err := tea.NewProgram(model, tea.WithAltScreen()).Run(); err != nil {
+	if _, err := tea.NewProgram(model, tea.WithAltScreen(), tea.WithMouseCellMotion()).Run(); err != nil {
 		return fmt.Errorf("run ui: %w", err)
 	}
 

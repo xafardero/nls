@@ -24,6 +24,10 @@ const (
 	HelpBoxWidth          = 70
 	HelpBoxPadding        = 2
 	SearchInputWidth      = 50
+
+	tableBorderWidth           = 1
+	tableHeaderHeight          = 2
+	tableHorizontalCellPadding = 2
 )
 
 // viewMode represents the current view/screen mode
@@ -55,6 +59,7 @@ const helpText = `Keyboard Shortcuts:
     2            Sort by MAC
     3            Sort by Vendor
     4            Sort by Hostname
+    click header Sort; click again reverses order
 
   Other:
     ?            Show this help
