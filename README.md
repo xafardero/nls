@@ -1,15 +1,17 @@
-# nls
+# nls — Find devices on your LAN and act on them from the terminal
+
+`nls` turns an nmap discovery scan into a searchable table. Find a device, copy its IP, or SSH into it without parsing scan output.
+
+```sh
+sudo nls 192.168.1.0/24
+```
+
+![Demo](img/demo.gif)
 
 [![Test](https://github.com/xafardero/nls/actions/workflows/test.yml/badge.svg)](https://github.com/xafardero/nls/actions/workflows/test.yml)
 [![Lint](https://github.com/xafardero/nls/actions/workflows/lint.yml/badge.svg)](https://github.com/xafardero/nls/actions/workflows/lint.yml)
 [![Release](https://img.shields.io/github/v/release/xafardero/nls)](https://github.com/xafardero/nls/releases)
 [![License: MIT](https://img.shields.io/github/license/xafardero/nls)](LICENSE)
-
-A terminal-based network scanner that lists hosts in a network using nmap's ping scan. Results are displayed in an interactive terminal UI for easy browsing.
-
-Unlike raw `nmap`/`arp-scan` output, `nls` gives you a live, sortable, filterable table you can act on directly — search by IP/MAC/vendor/hostname, SSH into a host, or copy its IP, all without leaving the terminal or re-running commands with different flags.
-
-![Demo](img/demo.gif)
 
 ## Download
 Install the latest release for Linux (amd64/arm64) or macOS (arm64) with:
