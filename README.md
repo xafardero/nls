@@ -69,6 +69,7 @@ sudo nls <CIDR>
 - `3`: Sort by Vendor
 - `4`: Sort by Hostname
 - Press the same number again to toggle ascending/descending
+- Click a column header to sort; click it again to reverse the order
 
 **Help & Exit:**
 - `?`: Show help screen with all shortcuts

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/atotto/clipboard"
+	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 
 	"nls/internal/scanner"
@@ -127,6 +128,14 @@ func (m UIModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		default: // modeNormal
 			return m.handleNormalKeys(msg)
 		}
+
+	case tea.MouseMsg:
+		if m.isScanning || m.mode != modeNormal {
+			return m, nil
+		}
+		if column := clickedHeaderColumn(msg, m.table.Columns()); column > 0 {
+			return m.sortByColumn(column), nil
+		}
 	}
 
 	m.table, cmd = m.table.Update(msg)
@@ -243,18 +252,7 @@ func (m UIModel) handleNormalKeys(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m, tea.Quit
 
 	case "1", "2", "3", "4":
-		// Sort by column
-		col := int(msg.String()[0] - '0')
-		if m.sortColumn == col {
-			// Toggle sort direction
-			m.sortAscending = !m.sortAscending
-		} else {
-			// New column, default to ascending
-			m.sortColumn = col
-			m.sortAscending = true
-		}
-		m = m.rebuildTable()
-		return m, nil
+		return m.sortByColumn(int(msg.String()[0] - '0')), nil
 
 	case "r":
 		// Trigger network rescan
@@ -293,6 +291,37 @@ func (m UIModel) handleNormalKeys(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	m.table, cmd = m.table.Update(msg)
 	return m, cmd
+}
+
+// sortByColumn applies ascending order to a new column and reverses the order
+// when the currently sorted column is selected again.
+func (m UIModel) sortByColumn(column int) UIModel {
+	if m.sortColumn == column {
+		m.sortAscending = !m.sortAscending
+	} else {
+		m.sortColumn = column
+		m.sortAscending = true
+	}
+	return m.rebuildTable()
+}
+
+// clickedHeaderColumn returns the one-based column index for a primary-button
+// click on the rendered table header, or zero for every other mouse event.
+func clickedHeaderColumn(msg tea.MouseMsg, columns []table.Column) int {
+	if msg.Button != tea.MouseButtonLeft || msg.Action != tea.MouseActionPress ||
+		msg.Y < tableBorderWidth || msg.Y >= tableBorderWidth+tableHeaderHeight {
+		return 0
+	}
+
+	x := msg.X - tableBorderWidth
+	for index, column := range columns {
+		columnWidth := column.Width + tableHorizontalCellPadding
+		if x >= 0 && x < columnWidth {
+			return index + 1
+		}
+		x -= columnWidth
+	}
+	return 0
 }
 
 // rebuildTable rebuilds the table with current filter and sort settings.

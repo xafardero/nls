@@ -161,6 +161,63 @@ func TestHandleNormalKeys_SortColumns(t *testing.T) {
 	}
 }
 
+func TestUpdate_MouseClickHeaderSortsAndToggles(t *testing.T) {
+	hosts := []scanner.HostInfo{
+		{IP: "192.168.1.10", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Vendor A", Hostname: "host1"},
+		{IP: "192.168.1.5", MAC: "11:22:33:44:55:66", Vendor: "Vendor B", Hostname: "host2"},
+	}
+	model := NewUIModel(hosts, nil, "")
+	columns := model.table.Columns()
+
+	clickIPHeader := tea.MouseMsg{
+		X:      tableBorderWidth,
+		Y:      tableBorderWidth,
+		Button: tea.MouseButtonLeft,
+		Action: tea.MouseActionPress,
+	}
+	updatedModel, _ := model.Update(clickIPHeader)
+	result := updatedModel.(UIModel)
+	if result.sortColumn != 1 || !result.sortAscending {
+		t.Errorf("first IP header click = column %d ascending %v; want column 1 ascending", result.sortColumn, result.sortAscending)
+	}
+	if got := result.table.Rows()[0][0]; got != "192.168.1.5" {
+		t.Errorf("first sorted IP = %q; want %q", got, "192.168.1.5")
+	}
+
+	updatedModel, _ = result.Update(clickIPHeader)
+	result = updatedModel.(UIModel)
+	if result.sortAscending {
+		t.Error("second IP header click should sort descending")
+	}
+
+	clickMACHeader := tea.MouseMsg{
+		X:      tableBorderWidth + columns[0].Width + tableHorizontalCellPadding,
+		Y:      tableBorderWidth,
+		Button: tea.MouseButtonLeft,
+		Action: tea.MouseActionPress,
+	}
+	updatedModel, _ = result.Update(clickMACHeader)
+	result = updatedModel.(UIModel)
+	if result.sortColumn != 2 || !result.sortAscending {
+		t.Errorf("MAC header click = column %d ascending %v; want column 2 ascending", result.sortColumn, result.sortAscending)
+	}
+}
+
+func TestUpdate_MouseClickOutsideHeaderDoesNotSort(t *testing.T) {
+	model := NewUIModel(nil, nil, "")
+
+	updatedModel, _ := model.Update(tea.MouseMsg{
+		X:      tableBorderWidth,
+		Y:      tableBorderWidth + tableHeaderHeight,
+		Button: tea.MouseButtonLeft,
+		Action: tea.MouseActionPress,
+	})
+	result := updatedModel.(UIModel)
+	if result.sortColumn != 0 {
+		t.Errorf("sortColumn = %d; want 0", result.sortColumn)
+	}
+}
+
 func TestHandleNormalKeys_SortToggle(t *testing.T) {
 	hosts := []scanner.HostInfo{
 		{IP: "192.168.1.10", MAC: "AA:BB:CC:DD:EE:FF", Vendor: "Vendor A", Hostname: "host1"},
